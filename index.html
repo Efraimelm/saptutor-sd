@@ -1,0 +1,1157 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Simulador educacional do ciclo Order-to-Cash do SAP SD: VA01, VL01N, VF01 e NF-e.">
+<style>html,body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style><title>SAPTutor SD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: site web responsivo (até 1180px; duas colunas no desktop, uma no celular). Modo Clássico imita o SAP GUI. Barra de status e mentor fixos no rodapé. */
+:root{
+  --bg:#EDF1F3; --surface:#FFFFFF; --sunk:#F4F7F8; --fg:#132029; --muted:#55666F; --line:#D0D9DE;
+  --accent:#0A6680; --accent-ink:#FFFFFF; --accent-soft:#DCEDF2;
+  --mentor:#B9740F; --mentor-soft:#FFF3DE;
+  --ok:#1D7544; --ok-soft:#E1F3E7; --err:#B42318; --err-soft:#FDE7E5; --warn:#7F5300; --warn-soft:#FFF1D0; --info:#245C9E; --info-soft:#E3EDF9;
+  --display:"Barlow Semi Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Barlow","Segoe UI",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --gui:Tahoma,Arial,"Segoe UI",sans-serif;
+  /* Modo Clássico: paleta fixa do SAP GUI (tema Signature), igual em qualquer tema */
+  --g-shell:#DFE8F1; --g-bar:#E4ECF4; --g-panel:#E9F0F7; --g-field:#FFFFFF; --g-border:#7F9DB9; --g-title:#0E2A55; --g-text:#000000; --g-hdr:#DCE5EF; --g-focus:#F0AB00; --g-link:#0B5394;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1418; --surface:#152027; --sunk:#10191F; --fg:#E2E9ED; --muted:#93A3AD; --line:#2A3943;
+    --accent:#4FB5D2; --accent-ink:#03212A; --accent-soft:#12323D;
+    --mentor:#F0B04A; --mentor-soft:#33270F;
+    --ok:#5ACB8B; --ok-soft:#12301F; --err:#FF8B7E; --err-soft:#3D1814; --warn:#F2C25C; --warn-soft:#3A2C0C; --info:#8BB8F0; --info-soft:#152A44;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1418; --surface:#152027; --sunk:#10191F; --fg:#E2E9ED; --muted:#93A3AD; --line:#2A3943;
+  --accent:#4FB5D2; --accent-ink:#03212A; --accent-soft:#12323D;
+  --mentor:#F0B04A; --mentor-soft:#33270F;
+  --ok:#5ACB8B; --ok-soft:#12301F; --err:#FF8B7E; --err-soft:#3D1814; --warn:#F2C25C; --warn-soft:#3A2C0C; --info:#8BB8F0; --info-soft:#152A44;
+  color-scheme:dark;
+}
+:root.is-classic{color-scheme:light}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.5 var(--body);padding-inline:16px;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer}
+code,.mono{font-family:var(--mono)}
+#app{max-width:1180px;margin:0 auto;padding-block:8px 190px}
+h1,h2,h3{text-wrap:balance;margin:0}
+p{margin:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- App chrome ---------- */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:8px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{width:36px;height:36px;border-radius:9px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:700 16px/1 var(--display);letter-spacing:.04em;flex:none}
+.brand b{display:block;font:700 19px/1.1 var(--display);letter-spacing:.01em}
+.brand small{display:block;color:var(--muted);font-size:12.5px;line-height:1.3}
+.top-r{display:flex;align-items:center;gap:8px}
+.seg{display:flex;background:var(--sunk);border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{border:0;background:none;padding:5px 11px;border-radius:999px;font-size:13px;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 2px rgb(0 0 0 / .12)}
+.ic{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--mentor);background:var(--mentor-soft);color:var(--mentor);font-weight:700;display:grid;place-items:center;flex:none}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-block:6px 10px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 11px;font:500 13px/1.2 var(--mono);color:var(--muted)}
+.tabs button.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+
+.scr-head{display:grid;gap:4px;margin-block:6px 14px}
+.tc{justify-self:start;font:600 12px/1 var(--mono);letter-spacing:.06em;background:var(--accent-soft);color:var(--accent);padding:5px 8px;border-radius:6px}
+.scr-head h1{font:700 28px/1.1 var(--display)}
+.scr-head p{color:var(--muted);font-size:15px}
+
+.stack{display:grid;gap:14px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:16px}
+fieldset.panel{margin:0;min-width:0}
+.panel>legend,.sec-t{font:600 12px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+fieldset.panel>legend{padding:0 6px;margin-left:-6px}
+.sec-t{margin-block:6px -4px}
+
+.f{display:grid;gap:6px;min-width:0}
+.lab{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-weight:600;font-size:14.5px}
+.lab code{font-size:11px;font-weight:500;color:var(--muted);background:var(--sunk);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+.ctl{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px}
+.f input,.f select,.ctl input{width:100%;height:48px;border:1.5px solid var(--line);border-radius:10px;padding:0 12px;background:var(--surface);color:var(--fg);font:500 17px/1 var(--mono)}
+.f input:focus,.ctl input:focus,.f select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+input.up{text-transform:uppercase}
+input::placeholder{color:var(--muted);opacity:.55;text-transform:none}
+input[readonly]{background:var(--sunk)}
+input.bad{border-color:var(--err)!important;box-shadow:0 0 0 3px var(--err-soft)!important}
+.desc{color:var(--muted);font-size:14px;min-height:0}
+.desc:empty{display:none}
+.help{color:var(--muted);font-size:13.5px;line-height:1.45}
+output.val{display:block;font:500 17px/1.3 var(--mono);padding:12px;border-radius:10px;background:var(--sunk);border:1.5px dashed var(--line)}
+
+.btns{display:flex;flex-wrap:wrap;gap:10px}
+.btn{min-height:50px;padding:0 20px;border-radius:11px;border:1.5px solid var(--line);background:var(--surface);font-weight:600;font-size:16px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);flex:1 1 220px}
+.btn.wide{flex:1 1 100%}
+.btn.sm{min-height:38px;padding:0 14px;font-size:14px}
+.btn.danger{color:var(--err);border-color:var(--err-soft)}
+.lnk{border:0;background:none;color:var(--accent);font-weight:600;font-size:14px;padding:4px}
+
+/* Itens */
+.item{border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:12px;background:var(--sunk)}
+.item-h{display:flex;align-items:center;gap:8px}
+.item-h .pos{font:600 15px/1 var(--mono)}
+.item-h code{font-size:11px;color:var(--muted)}
+.item-h .lnk{margin-left:auto}
+.item-g{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.item-g .f:first-child{grid-column:1/-1}
+.ip{font-size:14px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 14px;font-variant-numeric:tabular-nums}
+.ip b{color:var(--fg);font-weight:600}
+.cinfo{font-size:14px;color:var(--muted);display:grid;gap:2px;line-height:1.45}
+.cinfo b{color:var(--fg);font-size:15px}
+.cinfo:empty{display:none}
+
+/* Totais */
+.tot{display:grid;gap:12px}
+.tot-main{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tot-main>div{background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid}
+.tot-main span{font-size:12.5px;color:var(--muted)}
+.tot-main b{font:600 21px/1.25 var(--mono);font-variant-numeric:tabular-nums}
+dl.kv{margin:0;display:grid;gap:6px;font-size:14px}
+dl.kv>div{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dotted var(--line);padding-bottom:5px}
+dl.kv dt{color:var(--muted)}
+dl.kv dd{margin:0;font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+dl.kv .grand{border-bottom:0}
+dl.kv .grand dt{color:var(--fg);font-weight:600}
+dl.kv .grand dd{font-weight:600}
+
+/* Home */
+.hero{display:grid;gap:8px;margin-block:4px 4px}
+.eyebrow{font:600 12px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.hero h1{font:700 32px/1.05 var(--display)}
+.hero p{color:var(--muted)}
+ol.steps{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.step{display:grid;grid-template-columns:34px 1fr;gap:4px 12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.step .num{grid-row:span 3;width:34px;height:34px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font:700 16px/1 var(--display);color:var(--muted)}
+.step.done .num{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.step.cur{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.step.cur .num{border-color:var(--accent);color:var(--accent)}
+.step h3{font:600 17px/1.25 var(--body);display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.step h3 code{font-size:12.5px;color:var(--accent)}
+.step p{color:var(--muted);font-size:14px}
+.step .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--sunk);color:var(--muted);border:1px solid var(--line)}
+.chip.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.chip.cur{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.chip.pend{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.md{display:grid;gap:0}
+.md>div{display:grid;grid-template-columns:92px 1fr;gap:10px;padding-block:10px;border-top:1px solid var(--line)}
+.md>div:first-child{border-top:0;padding-top:0}
+.md dt{font-size:12px;color:var(--muted);line-height:1.35}
+.md dt code{display:block;font-size:11px;margin-top:2px}
+.md dd{margin:0;font-size:14.5px;min-width:0}
+.md dd b{font-family:var(--mono);font-weight:600}
+.md dd span{display:block;color:var(--muted);font-size:13.5px}
+.done-banner{background:var(--ok-soft);border:1px solid var(--ok);border-radius:var(--r);padding:14px;display:grid;gap:10px}
+.done-banner b{color:var(--ok);font:700 20px/1.2 var(--display)}
+
+/* Resultado */
+.res{background:var(--ok-soft);border:1px solid var(--ok);border-radius:var(--r);padding:16px;display:grid;gap:10px;margin-bottom:14px}
+.res .eyebrow{color:var(--ok)}
+.res-n{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.res-n small{font-size:14px;color:var(--muted)}
+.res-n b{font:600 30px/1 var(--mono);letter-spacing:.02em}
+.res p{font-size:14.5px}
+.meter{height:12px;border-radius:6px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.meter span{display:block;height:100%;width:var(--to);background:var(--ok);animation:drop 1.4s .3s cubic-bezier(.4,0,.2,1) backwards}
+@keyframes drop{from{width:var(--from)}to{width:var(--to)}}
+.stockline{display:flex;justify-content:space-between;font:500 14px/1.3 var(--mono);font-variant-numeric:tabular-nums}
+
+/* Fluxo de documentos */
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;list-style:none;margin:0;padding:0}
+.flow li{display:flex;align-items:center;gap:6px}
+.flow li+li::before{content:"›";color:var(--muted);font-weight:600}
+.flow span{background:var(--sunk);border:1px solid var(--line);border-radius:7px;padding:4px 8px;font-size:12.5px;line-height:1.25}
+.flow span small{display:block;color:var(--muted);font-size:11px}
+.flow span b{font-family:var(--mono);font-weight:600}
+
+/* NF-e */
+.nflist{display:grid;gap:8px}
+.nfrow{display:grid;grid-template-columns:1fr auto;gap:2px 10px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px}
+.nfrow.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.nfrow b{font-family:var(--mono)}
+.nfrow small{color:var(--muted);font-size:13px}
+.nf-status{display:flex;align-items:center;gap:12px;border-radius:var(--r);padding:14px;border:1px solid var(--line);background:var(--sunk)}
+.nf-status.auth{background:var(--ok-soft);border-color:var(--ok)}
+.nf-status b{display:block;font:700 18px/1.2 var(--display)}
+.nf-status.auth b{color:var(--ok)}
+.nf-status small{display:block;color:var(--muted);font-size:13px}
+.dot{width:14px;height:14px;border-radius:50%;flex:none;background:var(--ok)}
+.spin{width:18px;height:18px;border-radius:50%;flex:none;border:3px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.key{font:500 14px/1.6 var(--mono);word-spacing:2px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.danfe{background:var(--surface);color:var(--fg);border:1.5px solid var(--fg);border-radius:2px;font-size:12.5px;display:grid}
+.danfe .dh{display:flex;justify-content:space-between;gap:10px;padding:8px 10px;border-bottom:1.5px solid var(--fg);align-items:center}
+.danfe .dh strong{font:700 22px/1 var(--display);letter-spacing:.06em}
+.danfe .dh span{font-size:11px;line-height:1.3;text-align:right}
+.danfe .bx{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+.danfe .bx>div{border-bottom:1px solid var(--fg);padding:5px 8px;min-width:0}
+.danfe .bx>div:nth-child(odd){border-right:1px solid var(--fg)}
+.danfe .bx>.full{grid-column:1/-1;border-right:0!important}
+.danfe i{display:block;font-style:normal;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.danfe .v{font-family:var(--mono);font-size:12.5px;overflow-wrap:anywhere}
+.danfe .t{padding:6px 8px 2px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;border-bottom:1px solid var(--fg)}
+
+/* Tabelas */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table.grid{border-collapse:collapse;width:100%;font:13px/1.35 var(--mono);font-variant-numeric:tabular-nums}
+table.grid th{text-align:left;font:600 11.5px/1.2 var(--mono);color:var(--muted);background:var(--sunk);padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.grid td{padding:7px 10px;border-bottom:1px solid var(--line);white-space:nowrap;vertical-align:middle}
+table.grid tr:last-child td{border-bottom:0}
+table.grid .r{text-align:right}
+.empty{padding:22px 16px;text-align:center;color:var(--muted);font-size:14.5px}
+.se-pick{display:grid;gap:8px}
+.cnt{color:var(--muted);font-size:13.5px}
+
+/* Sugestões (auto-completar) */
+.sug{position:fixed;z-index:60;list-style:none;margin:0;padding:4px;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 28px rgb(0 0 0 / .18);max-height:280px;overflow:auto}
+.sug li{display:grid;grid-template-columns:auto 1fr;gap:0 10px;padding:9px 10px;border-radius:7px;cursor:pointer}
+.sug li b{font:600 14px/1.3 var(--mono)}
+.sug li span{font-size:14px;line-height:1.3}
+.sug li small{grid-column:2;color:var(--muted);font-size:12.5px}
+.sug li.act,.sug li:hover{background:var(--accent-soft)}
+.sug .sug-h{display:block;padding:4px 10px 6px;font-size:11.5px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;cursor:default}
+.sug .sug-h:hover{background:none}
+
+/* Dock: mentor + barra de status */
+#dock{position:fixed;left:0;right:0;bottom:0;z-index:40;padding-inline:12px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));pointer-events:none}
+.dock-in{max-width:1180px;margin:0 auto;display:grid;gap:8px}
+#mentor{max-width:560px;width:100%;justify-self:end}
+.dock-in>*{pointer-events:auto}
+#mentor{display:grid;grid-template-columns:38px 1fr;gap:12px;background:var(--surface);border:1.5px solid var(--mentor);border-radius:14px;padding:12px 14px;box-shadow:0 12px 30px rgb(0 0 0 / .16);animation:pop .28s ease-out}
+@keyframes pop{from{transform:translateY(10px);opacity:.4}to{transform:none;opacity:1}}
+.m-av{width:38px;height:38px;border-radius:50%;background:var(--mentor);color:var(--surface);display:grid;place-items:center;font:700 15px/1 var(--display);letter-spacing:.04em}
+.m-body{display:grid;gap:8px;min-width:0}
+.m-body small{font:600 11.5px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--mentor)}
+.m-body p{font-size:15px;line-height:1.45}
+.m-act{display:flex;gap:8px}
+.m-act button{border:1.5px solid var(--mentor);background:var(--mentor-soft);color:var(--fg);border-radius:8px;padding:6px 14px;font-weight:600;font-size:14px}
+.status{display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 12px;border-radius:10px;background:var(--surface);border:1px solid var(--line);font-size:14px;line-height:1.35;box-shadow:0 4px 14px rgb(0 0 0 / .08)}
+.status svg{flex:none}
+.status .txt{min-width:0;flex:1}
+.status .idle{color:var(--muted)}
+.status.s{background:var(--ok-soft);border-color:var(--ok);color:var(--fg)}
+.status.e{background:var(--err-soft);border-color:var(--err);color:var(--fg)}
+.status.w{background:var(--warn-soft);border-color:var(--warn);color:var(--fg)}
+.status.i{background:var(--info-soft);border-color:var(--info);color:var(--fg)}
+.status.flash{animation:flash .5s ease-out}
+@keyframes flash{from{transform:translateY(4px)}to{transform:none}}
+.status .sys{display:none}
+
+.pulse{position:relative;z-index:1;box-shadow:0 0 0 3px var(--mentor-soft),0 0 0 5px var(--mentor)!important;animation:pulse 1.3s ease-in-out 3}
+@keyframes pulse{50%{box-shadow:0 0 0 3px var(--mentor-soft),0 0 0 9px transparent}}
+
+/* ================= Modo Clássico (SAP GUI) ================= */
+.is-classic body{background:var(--g-shell);color:var(--g-text);font:13px/1.4 var(--gui);padding-inline:0}
+.is-classic #app{max-width:none;padding-block:0 120px}
+.sg{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;font:12px/1.2 var(--gui);color:#000;user-select:none;-webkit-user-select:none}
+.sg-menu,.sg-tool,.sg-app{scrollbar-width:none}
+.sg-menu::-webkit-scrollbar,.sg-tool::-webkit-scrollbar,.sg-app::-webkit-scrollbar{display:none}
+.sg-menu{display:flex;align-items:center;height:25px;padding:0 4px;background:linear-gradient(#F6F9FC,#DDE6EF);border-bottom:1px solid #B5C5D5;overflow-x:auto}
+.sg-menu .wi{flex:none;margin:0 6px 0 2px;display:grid}
+.sg-menu>span:not(.wi){padding:3px 7px;white-space:nowrap;border:1px solid transparent;cursor:default}
+.sg-menu>span:not(.wi):hover{border-color:#8FA8C2;background:#EAF1F8}
+.sg-menu u{text-decoration:underline;text-underline-offset:1px}
+.sg-menu .r{margin-left:auto;display:flex;align-items:center;gap:8px;flex:none;padding-left:10px}
+.sg-mode{border:1px solid #7F9DB9;background:linear-gradient(#fff,#E2EAF2);border-radius:2px;font:11px var(--gui);padding:2px 8px;color:#0E2A55}
+.wc{display:flex;gap:2px}
+.wc i{width:17px;height:15px;border:1px solid #7F9DB9;background:linear-gradient(#fff,#DCE5EE);display:grid;place-items:center;font:bold 10px/1 var(--gui);font-style:normal;color:#24405E}
+.sg-tool{display:flex;align-items:center;height:31px;padding:0 4px;background:linear-gradient(#F1F5F9,#D4DFEA);border-bottom:1px solid #A7B9CB;gap:1px;overflow-x:auto}
+.sb{width:25px;height:23px;display:grid;place-items:center;border:1px solid transparent;border-radius:2px;background:none;padding:0;flex:none}
+.sb:hover:not(:disabled),.sa:hover:not(:disabled){border-color:#7F9DB9;background:linear-gradient(#FFFFFF,#E1E9F2)}
+.sb:active:not(:disabled),.sa:active:not(:disabled){background:#C9D7E6}
+.sb:disabled,.sa:disabled{cursor:default}
+.sb:disabled svg,.sa:disabled svg{opacity:.35;filter:grayscale(1)}
+.sa:disabled{color:#8D9BAA}
+.sep{width:2px;height:20px;border-left:1px solid #9FB1C4;border-right:1px solid #fff;margin:0 5px;flex:none}
+.cmd{display:flex;align-items:center;height:21px;border:1px solid #7F9DB9;background:#fff;margin:0 1px 0 4px;flex:none}
+.cmd input{width:158px;height:19px;border:0;padding:0 3px;font:12px var(--gui);color:#000;background:#fff;text-transform:uppercase}
+.cmd input:focus{outline:none;background:#FFFDE8}
+.cmd .dd{width:15px;height:19px;border-left:1px solid #A9BBCD;background:linear-gradient(#F8FAFC,#D8E2EC);display:grid;place-items:center}
+.sg-title{display:flex;align-items:center;min-height:37px;padding:4px 12px;background:linear-gradient(#EAF1F8,#CEDCEA);border-bottom:1px solid #A7B9CB}
+.sg-title h1{font:italic bold 19px/1.2 Arial,var(--gui);color:#0E2A55;letter-spacing:-.01em}
+.sg-app{display:flex;align-items:center;min-height:29px;padding:0 4px;background:linear-gradient(#F3F7FA,#DDE6EF);border-bottom:1px solid #93A9BF;gap:1px;overflow-x:auto}
+.sa{height:23px;display:inline-flex;align-items:center;gap:4px;padding:0 5px;border:1px solid transparent;border-radius:2px;background:none;font:12px var(--gui);color:#000;white-space:nowrap;flex:none}
+.sa svg{flex:none}
+
+.is-classic #screen{padding:12px 12px 0;max-width:1100px}
+.is-classic .stack{gap:10px}
+.is-classic .panel{background:var(--g-panel);border:1px solid #AEBDCA;border-radius:0;padding:10px 12px;gap:6px;color:var(--g-text)}
+.is-classic fieldset.panel{padding-top:6px}
+.is-classic .panel>legend,.is-classic .sec-t{font:bold 12px var(--gui);letter-spacing:0;text-transform:none;color:var(--g-title)}
+.is-classic .f{grid-template-columns:minmax(0,190px) minmax(0,1fr);align-items:center;gap:8px}
+.is-classic .lab{font:13px var(--gui);color:var(--g-text);gap:0}
+.is-classic .lab code,.is-classic .help{display:none}
+.is-classic .f input,.is-classic .ctl input,.is-classic .f select{height:23px;border:1px solid var(--g-border);border-radius:0;padding:0 4px;background:var(--g-field);color:var(--g-text);font:13px/1 var(--gui);width:var(--w,16ch);max-width:100%;box-shadow:none}
+.is-classic .f select{width:auto}
+.is-classic .f input:focus,.is-classic .ctl input:focus,.is-classic .f select:focus{border-color:#4A6B8A;box-shadow:none;outline:2px solid var(--g-focus);outline-offset:-1px}
+.is-classic input[readonly]{background:#EEF2F5}
+.is-classic .req input{background-image:linear-gradient(135deg,#2D6FA3 0 5px,transparent 5px);background-repeat:no-repeat}
+.is-classic .ctl{flex-wrap:nowrap}
+.is-classic .desc{font-size:13px;color:var(--g-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.is-classic output.val{display:inline-block;font:13px var(--gui);padding:3px 4px;border:1px solid #C3CDD6;border-radius:0;background:#EEF2F5;min-width:12ch}
+.is-classic .btn{min-height:24px;padding:0 10px;border-radius:2px;border:1px solid var(--g-border);background:linear-gradient(#fff,#E6ECF1);color:var(--g-text);font:12px var(--gui);flex:none}
+.is-classic .btn.pri{background:linear-gradient(#fff,#E6ECF1);color:var(--g-text);border-color:var(--g-border);font-weight:bold}
+.is-classic .btn:hover{border-color:#4A6B8A}
+.is-classic .btns{gap:4px}
+.is-classic .cinfo{font-size:12.5px;color:#3D4F60}
+.is-classic .cinfo b{font-size:13px;color:var(--g-text)}
+.is-classic .tbl-wrap{border:1px solid var(--g-border);border-radius:0;background:#fff}
+.is-classic table.grid{font:12.5px/1.3 var(--gui);color:var(--g-text)}
+.is-classic table.grid th{font:bold 12px var(--gui);background:var(--g-hdr);color:var(--g-text);padding:4px 6px;border-right:1px solid #C9D3DC}
+.is-classic table.grid td{padding:2px 6px;border-bottom:1px solid #E1E7EC;border-right:1px solid #EEF2F5}
+.is-classic table.grid tbody tr:nth-child(even) td{background:#F6F9FB}
+.is-classic table.grid .ctl input{height:21px;border-color:#A9B8C6}
+.is-classic .tot-main>div{background:#fff;border:1px solid #C3CDD6;border-radius:0;padding:4px 8px}
+.is-classic .tot-main span{font-size:12px;color:#3D4F60}
+.is-classic .tot-main b{font:bold 15px var(--gui)}
+.is-classic dl.kv{font:12.5px var(--gui)}
+.is-classic dl.kv dt{color:#3D4F60}
+.is-classic dl.kv dd{font-family:var(--gui)}
+.is-classic dl.kv>div{border-bottom-color:#C9D3DC}
+.is-classic .nf-status,.is-classic .nfrow{border-radius:0;background:#fff;border-color:#AEBDCA;color:var(--g-text)}
+.is-classic .nf-status.auth{background:#EAF5EC;border-color:#2B8A3E}
+.is-classic .nf-status.auth b{color:#1F6B30}
+.is-classic .nf-status b{font:bold 14px var(--gui)}
+.is-classic .nf-status small,.is-classic .nfrow small,.is-classic .cnt{color:#3D4F60}
+.is-classic .nfrow.on{border-color:#1F3D59;box-shadow:inset 3px 0 0 #1F3D59}
+.is-classic .key{font:13px var(--gui)}
+.is-classic .flow span{background:#fff;border-color:#AEBDCA;border-radius:0;color:var(--g-text)}
+.is-classic .flow span small{color:#3D4F60}
+.is-classic .danfe{background:#fff;color:#111;border-color:#111}
+.is-classic .danfe i{color:#555}
+.is-classic .empty{color:#3D4F60}
+.is-classic .sug{border-radius:0;background:#fff;color:var(--g-text);border-color:var(--g-border);box-shadow:2px 3px 8px rgb(0 0 0 / .25);padding:0}
+.is-classic .sug li{border-radius:0;padding:4px 8px}
+.is-classic .sug li b{font:bold 12.5px var(--gui)}
+.is-classic .sug li span{font-size:12.5px}
+.is-classic .sug li small{color:#3D4F60;font-size:11.5px}
+.is-classic .sug li.act,.is-classic .sug li:hover{background:#FFE9A8}
+.is-classic .sug .sug-h{background:var(--g-hdr);color:var(--g-title);font-weight:bold;text-transform:none;letter-spacing:0;font-size:12px;padding:4px 8px}
+
+.ea{background:#fff;border:1px solid #A7B9CB;min-height:min(62vh,520px);padding:6px 4px 14px;font:12px/1.25 var(--gui);color:#000;overflow-x:auto}
+.ea details{padding-left:17px}
+.ea>details{padding-left:0}
+.ea summary{list-style:none;display:flex;align-items:center;gap:5px;min-height:20px;padding:0 6px 0 2px;cursor:pointer;white-space:nowrap;width:max-content;border:1px solid transparent}
+.ea summary::-webkit-details-marker{display:none}
+.ea summary::before{content:"";flex:none;width:0;height:0;margin:0 2px 0 3px;border-left:5px solid #2B2B2B;border-top:4px solid transparent;border-bottom:4px solid transparent}
+.ea details[open]>summary::before{border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid #2B2B2B;border-bottom:0;margin:0 1px}
+.ea ul{list-style:none;margin:0;padding-left:34px}
+.ea li button{display:flex;align-items:center;gap:5px;min-height:20px;border:1px solid transparent;background:none;padding:0 6px 0 2px;font:12px var(--gui);color:#000;white-space:nowrap;text-align:left}
+.ea summary:hover,.ea li button:hover{background:#DCE7F2}
+.ea summary:focus-visible,.ea li button:focus-visible{outline:1px dotted #000;outline-offset:-1px;background:#C5D6E8}
+
+.is-classic #dock{padding:0}
+.is-classic .dock-in{max-width:none;gap:6px}
+.is-classic #mentor{margin:0 12px;width:auto}
+.is-classic .status{border-radius:0;min-height:28px;padding:3px 10px;font:12.5px var(--gui);background:var(--g-bar);border:0;border-top:1px solid var(--g-border);box-shadow:none;color:var(--g-text);padding-bottom:calc(3px + env(safe-area-inset-bottom,0px))}
+.is-classic .status.s{background:#E8F4EA}
+.is-classic .status.e{background:#FBE3E1}
+.is-classic .status.w{background:#FFF3D2}
+.is-classic .status.i{background:#E6EFF9}
+.is-classic .status .idle{color:#5D7287}
+.is-classic .status{background:linear-gradient(#EEF3F8,#D9E3ED)}
+.is-classic .status .sys{display:flex;gap:3px;margin-left:auto;color:#000;white-space:nowrap}
+.is-classic .status .sys span{border:1px solid;border-color:#8FA6BD #FFFFFF #FFFFFF #8FA6BD;padding:1px 8px;background:#EEF3F8}
+.is-classic .res{display:none}
+
+@media (max-width:620px){
+  .is-classic .f{grid-template-columns:1fr;gap:2px}
+  .is-classic .status .sys{display:none}
+  .is-classic .desc{white-space:normal}
+}
+@media (max-width:380px){
+  .item-g{grid-template-columns:1fr}
+  .tot-main{grid-template-columns:1fr}
+}
+.disc{font-size:12.5px;line-height:1.45;color:var(--muted);max-width:70ch}
+.is-classic .disc{font:11px/1.4 var(--gui);color:#3D4F60;margin-top:6px}
+.home>.stack,.split>*{min-width:0}
+.split>aside{display:grid;gap:14px}
+@media (min-width:900px){
+  .top{padding-block:14px}
+  .home{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:24px;align-items:start}
+  .hero h1{font-size:44px}
+  .hero p{font-size:17px;max-width:60ch}
+  .split{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:20px;align-items:start}
+  .split>aside{position:sticky;top:16px}
+  .narrow{max-width:760px}
+  .item-g{grid-template-columns:2fr 1fr 1fr}
+  .item-g .f:first-child{grid-column:auto}
+  .scr-head h1{font-size:34px}
+  .is-classic .split{grid-template-columns:minmax(0,1fr) 320px}
+  .is-classic .split>aside{top:150px}
+  .is-classic .narrow{max-width:none}
+}
+@media (max-width:899px){.home{display:grid;gap:14px}.split{display:grid;gap:14px}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+
+</head>
+<body>
+<div id="app">
+  <div id="chrome"></div>
+  <main id="screen"></main>
+</div>
+<div id="dock"><div class="dock-in">
+  <aside id="mentor" hidden aria-live="polite" aria-label="Mentor">
+    <div class="m-av" aria-hidden="true">IA</div>
+    <div class="m-body"><small>Mentor</small><p id="m-text"></p><div class="m-act"><button data-act="closementor">Entendi</button></div></div>
+  </aside>
+  <div id="status" class="status" role="status" aria-live="polite"></div>
+</div></div>
+
+<script>
+(function(){
+'use strict';
+const KEY='saptutor-sd-v1';
+const $=s=>document.querySelector(s);
+const pad=(n,l)=>String(n).padStart(l,'0');
+const e=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const money=n=>(+n||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const qf=n=>(+n||0).toLocaleString('pt-BR');
+const r2=n=>Math.round(n*100)/100;
+const up=v=>String(v??'').trim().toUpperCase();
+const num=v=>{const s=String(v??'').trim().replace(/\./g,'').replace(',','.');return s===''?NaN:Number(s)};
+const NOW=new Date();
+const TODAY=`${pad(NOW.getDate(),2)}.${pad(NOW.getMonth()+1,2)}.${NOW.getFullYear()}`;
+const hhmm=()=>{const d=new Date();return `${pad(d.getHours(),2)}:${pad(d.getMinutes(),2)}:${pad(d.getSeconds(),2)}`};
+
+/* ---------- Documentos fiscais brasileiros (dígitos verificadores reais) ---------- */
+function cnpj(base){const dv=b=>{const w=b.length===12?[5,4,3,2,9,8,7,6,5,4,3,2]:[6,5,4,3,2,9,8,7,6,5,4,3,2];const r=[...b].reduce((a,d,i)=>a+ +d*w[i],0)%11;return r<2?0:11-r};let b=base;b+=dv(b);b+=dv(b);return b}
+const fCNPJ=s=>`${s.slice(0,2)}.${s.slice(2,5)}.${s.slice(5,8)}/${s.slice(8,12)}-${s.slice(12)}`;
+function ieSP(a,b){const w1=[1,3,4,5,6,7,8,10];const d9=([...a].reduce((s,d,i)=>s+ +d*w1[i],0)%11)%10;const x=a+d9+b;const w2=[3,2,10,9,8,7,6,5,4,3,2];const d12=([...x].reduce((s,d,i)=>s+ +d*w2[i],0)%11)%10;const f=x+d12;return `${f.slice(0,3)}.${f.slice(3,6)}.${f.slice(6,9)}.${f.slice(9)}`}
+function ieRJ(a){const w=[2,7,6,5,4,3,2];const r=[...a].reduce((s,d,i)=>s+ +d*w[i],0)%11;const f=a+(r<=1?0:11-r);return `${f.slice(0,2)}.${f.slice(2,5)}.${f.slice(5,7)}-${f.slice(7)}`}
+const EMIT={NAME:'Doces Paulista Indústria e Comércio S.A.',CNPJ:cnpj('476203150001'),IE:ieSP('11204576','01'),ADDR:'Rua da Mooca, 1450 · São Paulo/SP'};
+function nfKey(nfenum,cnf){const base='35'+String(NOW.getFullYear()).slice(2)+pad(NOW.getMonth()+1,2)+EMIT.CNPJ+'55'+'001'+pad(nfenum,9)+'1'+pad(cnf,8);let s=0,w=2;for(let i=base.length-1;i>=0;i--){s+=+base[i]*w;w=w===9?2:w+1}const r=s%11;return base+(r<2?0:11-r)}
+const fKey=k=>k.replace(/(\d{4})(?=\d)/g,'$1 ');
+
+/* ---------- Dados mestres (seed) ---------- */
+function seed(){
+  return {v:1,ui2:1,name:'Thiago',mode:'classic',seen:{},
+    nr:{VA:14502,VL:80012433,VF:90035871,MB:4900001234,NF:4512,DOC:1087,FI:1800000123},
+    db:{
+      TVKO:[{VKORG:'BR01',VTEXT:'Vendas Brasil'}],
+      TVTW:[{VTWEG:'10',VTEXT:'Venda Direta'}],
+      TSPA:[{SPART:'01',VTEXT:'Alimentos'}],
+      TVAK:[{AUART:'OR',BEZEI:'Ordem padrão'}],
+      TVST:[{VSTEL:'BR01',VTEXT:'Expedição São Paulo · Doca 1'}],
+      T001W:[{WERKS:'BR01',NAME1:'Fábrica São Paulo',REGIO:'SP'}],
+      T001L:[{WERKS:'BR01',LGORT:'DEP1',LGOBE:'Produtos Acabados'}],
+      KNA1:[
+        {KUNNR:'1000234',NAME1:'Distribuidora de Alimentos Silva Ltda',STCD1:fCNPJ(cnpj('123456780001')),STCD3:ieSP('14932658','11'),STRAS:'Av. Presidente Wilson, 1200',ORT01:'São Paulo',REGIO:'SP',PSTLZ:'04220-000'},
+        {KUNNR:'1000235',NAME1:'Supermercados Bom Preço Ltda',STCD1:fCNPJ(cnpj('339125670001')),STCD3:ieRJ('8512345'),STRAS:'Rua Primeiro de Março, 88',ORT01:'Rio de Janeiro',REGIO:'RJ',PSTLZ:'20010-000'}
+      ],
+      MARA:[
+        {MATNR:'FERT-900',MAKTX:'Caixa de Chocolate Artesanal',MTART:'FERT',MEINS:'CX',BRGEW:0.6,GEWEI:'KG',STEUC:'1806.90.00'},
+        {MATNR:'FERT-910',MAKTX:'Barra de Chocolate 70% Cacau',MTART:'FERT',MEINS:'CX',BRGEW:1.2,GEWEI:'KG',STEUC:'1806.32.10'}
+      ],
+      MARC:[{MATNR:'FERT-900',WERKS:'BR01',MTVFP:'02',LADGR:'0001'},{MATNR:'FERT-910',WERKS:'BR01',MTVFP:'02',LADGR:'0001'}],
+      MARD:[{MATNR:'FERT-900',WERKS:'BR01',LGORT:'DEP1',LABST:200},{MATNR:'FERT-910',WERKS:'BR01',LGORT:'DEP1',LABST:500}],
+      A304:[{KSCHL:'PR00',VKORG:'BR01',VTWEG:'10',MATNR:'FERT-900',KBETR:15,KONWA:'BRL',KMEIN:'CX'},{KSCHL:'PR00',VKORG:'BR01',VTWEG:'10',MATNR:'FERT-910',KBETR:8.5,KONWA:'BRL',KMEIN:'CX'}],
+      J_1BTXIC1:[{LAND1:'BR',SHIPFROM:'SP',SHIPTO:'SP',RATE:18},{LAND1:'BR',SHIPFROM:'SP',SHIPTO:'RJ',RATE:12}],
+      J_1BTXIP1:[{NBMCODE:'1806.90.00',RATE:7,NOTA:'alíquota didática'},{NBMCODE:'1806.32.10',RATE:7,NOTA:'alíquota didática'}],
+      VBAK:[],VBAP:[],LIKP:[],LIPS:[],MKPF:[],MSEG:[],VBRK:[],VBRP:[],VBFA:[],J_1BNFDOC:[],J_1BNFLIN:[],BKPF:[],BSEG:[]
+    }};
+}
+function load(){try{const j=JSON.parse(localStorage.getItem(KEY));if(j&&j.v===1&&j.db)return j}catch(_){}return seed()}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(_){}}
+
+let S=load();
+if(!S.ui2){S.ui2=1;S.mode='classic';persist()}
+const freshVA01b=()=>({KUNNR:'',BSTKD:'PED-9982',items:[{MATNR:'',KWMENG:'',WERKS:'BR01'}]});
+let D={route:'home',result:null,confirmReset:false,nfSel:null,
+  va01:{AUART:'OR',VKORG:'BR01',VTWEG:'10',SPART:'01'},
+  va01b:freshVA01b(),
+  vl01:{VSTEL:'BR01',LEDAT:TODAY,VBELN:''},vl01b:null,
+  vf01:{VBELN:'',FKART:'F2',preview:false},
+  se16:{tab:'VBAK'}};
+let MSG=null, MENTOR=null; const sessionSeen={};
+
+/* ---------- Consultas ---------- */
+const db=()=>S.db;
+const cust=k=>db().KNA1.find(r=>r.KUNNR===k);
+const mat=m=>db().MARA.find(r=>r.MATNR===m);
+const marc=(m,w)=>db().MARC.find(r=>r.MATNR===m&&r.WERKS===w);
+const mard=(m,w,l)=>db().MARD.find(r=>r.MATNR===m&&r.WERKS===w&&r.LGORT===l);
+const stock=(m,w='BR01',l='DEP1')=>mard(m,w,l)?.LABST??0;
+const price=m=>db().A304.find(r=>r.MATNR===m&&r.KSCHL==='PR00')?.KBETR??0;
+const icmsR=to=>db().J_1BTXIC1.find(r=>r.SHIPFROM==='SP'&&r.SHIPTO===to)?.RATE??0;
+const ipiR=ncm=>db().J_1BTXIP1.find(r=>r.NBMCODE===ncm)?.RATE??0;
+const delivered=(vb,pos)=>db().LIPS.filter(r=>r.VGBEL===vb&&r.VGPOS===pos).reduce((a,r)=>a+r.LFIMG,0);
+const openQty=it=>it.KWMENG-delivered(it.VBELN,it.POSNR);
+const openOrders=()=>db().VBAK.filter(o=>db().VBAP.some(i=>i.VBELN===o.VBELN&&openQty(i)>0));
+const billable=()=>db().LIKP.filter(l=>l.WBSTK==='C'&&l.FKSTK!=='C');
+const atp=m=>stock(m)-db().VBAP.filter(i=>i.MATNR===m).reduce((a,i)=>a+Math.max(0,openQty(i)),0);
+const ernam=()=>(S.name||'ALUNO').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12)||'ALUNO';
+
+function calc(kunnr,rows){
+  const k=cust(kunnr),ir=k?icmsR(k.REGIO):0;
+  const lines=rows.map(r=>{const m=mat(r.MATNR);const p=r.p??(m?price(m.MATNR):0);const q=Number.isFinite(r.q)?r.q:0;const net=r2(q*p);const pr=m?ipiR(m.STEUC):0;return {...r,m,p,q,net,ir,pr,icms:r2(net*ir/100),ipi:r2(net*pr/100)}});
+  const t=lines.reduce((a,l)=>({net:a.net+l.net,icms:a.icms+l.icms,ipi:a.ipi+l.ipi}),{net:0,icms:0,ipi:0});
+  return {k,ir,lines,...t,tax:r2(t.icms+t.ipi),total:r2(t.net+t.ipi)};
+}
+function cycle(){
+  const o=db().VBAK.at(-1); if(!o) return {};
+  const lp=db().LIPS.find(r=>r.VGBEL===o.VBELN); const l=lp&&db().LIKP.find(x=>x.VBELN===lp.VBELN);
+  const bp=l&&db().VBRP.find(r=>r.VGBEL===l.VBELN); const b=bp&&db().VBRK.find(x=>x.VBELN===bp.VBELN);
+  const nf=b&&db().J_1BNFDOC.find(x=>x.REFKEY===b.VBELN);
+  return {o,l,b,nf};
+}
+
+/* ---------- Fontes do auto-completar ---------- */
+const SRC={
+  auart:()=>db().TVAK.map(r=>({k:r.AUART,t:r.BEZEI})),
+  vkorg:()=>db().TVKO.map(r=>({k:r.VKORG,t:r.VTEXT})),
+  vtweg:()=>db().TVTW.map(r=>({k:r.VTWEG,t:r.VTEXT})),
+  spart:()=>db().TSPA.map(r=>({k:r.SPART,t:r.VTEXT})),
+  kunnr:()=>db().KNA1.map(r=>({k:r.KUNNR,t:r.NAME1,s:`${r.ORT01}/${r.REGIO} · CNPJ ${r.STCD1}`})),
+  matnr:()=>db().MARA.map(r=>({k:r.MATNR,t:r.MAKTX,s:`NCM ${r.STEUC} · Estoque DEP1: ${qf(stock(r.MATNR))} ${r.MEINS}`})),
+  werks:()=>db().T001W.map(r=>({k:r.WERKS,t:r.NAME1})),
+  lgort:()=>db().T001L.map(r=>({k:r.LGORT,t:r.LGOBE,s:`Centro ${r.WERKS}`})),
+  vstel:()=>db().TVST.map(r=>({k:r.VSTEL,t:r.VTEXT})),
+  fkart:()=>[{k:'F2',t:'Fatura'}],
+  ordem:()=>openOrders().slice().reverse().map(o=>({k:o.VBELN,t:cust(o.KUNNR)?.NAME1||o.KUNNR,s:`Ordem ${o.AUART} de ${o.ERDAT} · Pedido ${o.BSTNK||'—'}`})),
+  remessa:()=>billable().slice().reverse().map(l=>({k:l.VBELN,t:cust(l.KUNNR)?.NAME1||l.KUNNR,s:`Remessa com SM em ${l.WADAT_IST}`}))
+};
+const SRC_H={ordem:'Ordens com itens em aberto',remessa:'Remessas prontas para faturar'};
+const descOf=(t,v)=>{v=up(v);if(!v||!SRC[t])return '';const f=SRC[t]().find(o=>o.k===v);return f?f.t:''};
+
+/* ---------- Mensagens (barra de status) ---------- */
+const ICO={
+  s:'<svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="14" height="14" rx="2.5" fill="#2B8A3E"/><path d="M4.2 8.4l2.4 2.4 5.2-5.4" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  e:'<svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="#C62828"/><path d="M5.3 5.3l5.4 5.4M10.7 5.3l-5.4 5.4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
+  w:'<svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.2L15.2 14H.8z" fill="#E8A100"/><path d="M8 5.6v4" stroke="#2A1D00" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="11.9" r="1" fill="#2A1D00"/></svg>',
+  i:'<svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="#2F6DB5"/><path d="M8 7.2v4.4" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="8" cy="4.7" r="1.1" fill="#fff"/></svg>'
+};
+function msg(t,text){MSG={t,text};renderStatus(true);return false}
+function clearMsg(){MSG=null;renderStatus()}
+function renderStatus(flash){
+  const el=$('#status');
+  el.className='status'+(MSG?' '+MSG.t:'');
+  el.innerHTML=(MSG?`${ICO[MSG.t]}<span class="txt">${e(MSG.text)}</span>`:`<span class="txt idle">${S.mode==='classic'?'':'Barra de status do SAP: mensagens aparecem aqui.'}</span>`)+
+    `<span class="sys"><span>▷ S4T (1) 100 ▾</span><span>sapbr01</span><span>INS</span></span>`;
+  if(flash){el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash')}
+}
+function markBad(sel){requestAnimationFrame(()=>{const el=document.querySelector(sel);if(el){el.classList.add('bad');el.focus({preventScroll:false})}})}
+
+/* ---------- Mentor ---------- */
+const ctx=()=>{const c=cycle();return {n:S.name||'Aluno',order:openOrders().at(-1)?.VBELN||c.o?.VBELN||'14502',deliv:billable().at(-1)?.VBELN||c.l?.VBELN||'80012433'}};
+const TIPS={
+  home:{t:v=>`Olá, ${v.n}! O ambiente já está parametrizado: cliente 1000234, material FERT-900, centro BR01 e depósito DEP1. Vamos fazer o ciclo completo, do pedido à nota fiscal autorizada. Comece pela VA01.`,hl:'.step.cur .btn'},
+  classic_first:{t:v=>`${v.n}, este é o modo clássico, igual ao SAP GUI. Digite /nVA01 no campo de comando, ao lado do visto verde, e tecle Enter. O menu em árvore leva às mesmas transações. O ícone amarelo de Ajuda (F1) chama o mentor, e o botão Modo App volta para a interface amigável.`,hl:'#okcode'},
+  va01_init:{t:v=>`${v.n}, aqui nós vamos abrir o canal de vendas. O código 'OR' já está inserido no Tipo de Ordem. Clique em Avançar para ver o que acontece.`,hl:'#f-va01-AUART, [data-act="enter"]'},
+  va01_items:{t:v=>`Agora é o pedido em si. No Emissor da ordem, digite 100 e escolha o cliente sugerido. Depois informe o material FERT-900 com 50 caixas. O preço vem sozinho da condição PR00.`,hl:'#f-va01b-KUNNR'},
+  va01_saved:{t:v=>`Ordem ${v.doc} gravada nas tabelas VBAK (cabeçalho) e VBAP (itens). O comercial terminou. Agora a logística assume: abra a VL01N.`,hl:'[data-to="VL01N"]'},
+  vl01_init:{t:v=>`Na VL01N você cria a remessa a partir da ordem. O ponto de expedição BR01 é a doca da fábrica. Informe a ordem ${v.order} e avance.`,hl:'#f-vl01-VBELN'},
+  vl01_items:{t:v=>`O SAP copiou a quantidade da ordem para a remessa. Falta o picking: digite em Qtd. picking exatamente o que foi separado na prateleira e registre a saída de mercadoria.`,hl:'input[id$="-PIKMG"]'},
+  pick_mismatch:{once:'session',t:v=>`A quantidade de picking tem que ser igual à quantidade de remessa. Se o operador separou menos, a remessa fica incompleta e o SAP não deixa registrar a saída.`,hl:'input[id$="-PIKMG"]'},
+  pgi_done:{t:v=>`Saída de mercadoria registrada (movimento 601). O estoque de ${v.mat} no DEP1 caiu de ${v.from} para ${v.to} caixas. Agora o financeiro pode faturar: VF01.`,hl:'[data-to="VF01"]'},
+  vf01_init:{t:v=>`Na VF01 o documento de referência é a remessa, não a ordem. O tipo F2 gera a fatura e dispara a NF-e. Informe a remessa ${v.deliv} e gere a fatura.`,hl:'#f-vf01-VBELN'},
+  nfe_screen:{t:v=>`O monitor de NF-e (J1BNFE) mostra o retorno da SEFAZ para cada nota. Verde com código 100 significa uso autorizado.`,hl:'.nf-status'},
+  nfe_auth:{t:v=>`A SEFAZ devolveu o código 100: uso autorizado. Repare no CFOP ${v.cfop}: o ICMS já vem incluso no preço, e o IPI é somado ao total da nota. O caminhão está liberado com o DANFE.`,hl:'.nf-status'},
+  mat_err:{once:'session',t:v=>`Confira o código do material. Neste cenário existem FERT-900 e FERT-910 no centro BR01. Comece a digitar FERT e escolha da lista.`,hl:'input[id$="-MATNR"]'},
+  cust_err:{once:'session',t:v=>`Cliente não encontrado. Digite 100 no Emissor da ordem e escolha o cliente da lista.`,hl:'#f-va01b-KUNNR'},
+  deficit:{once:'session',t:v=>`Não há estoque livre suficiente no DEP1. Confira o saldo na SE16N, tabela MARD, ou restaure os dados mestres na tela inicial.`},
+  vf_ref:{once:'session',t:v=>`Você informou uma ordem de venda. No faturamento com base em remessa, a referência é o número da remessa, que começa com 800.`,hl:'#f-vf01-VBELN'},
+  se16n:{t:v=>`A SE16N mostra as tabelas por trás de cada transação. Confira o que você gravou em VBAK, LIKP, MSEG, VBRK e J_1BNFDOC.`,hl:'#f-se16-tab'}
+};
+const TIP_FOR={home:'home',VA01:'va01_init',VA01_2:'va01_items',VL01N:'vl01_init',VL01N_2:'vl01_items',VF01:'vf01_init',J1BNFE:'nfe_screen',SE16N:'se16n'};
+function mentor(k,v={},force){
+  const t=TIPS[k];if(!t)return;
+  if(!force){if(t.once==='session'){if(sessionSeen[k])return;sessionSeen[k]=1}else{if(S.seen[k])return;S.seen[k]=1;persist()}}
+  MENTOR={k,v};showMentor();
+}
+function showMentor(){
+  document.querySelectorAll('.pulse').forEach(x=>x.classList.remove('pulse'));
+  const box=$('#mentor');
+  if(!MENTOR){box.hidden=true;return}
+  const t=TIPS[MENTOR.k];
+  $('#m-text').textContent=t.t({...ctx(),...MENTOR.v});
+  box.hidden=false;
+  if(t.hl)document.querySelectorAll(t.hl).forEach(x=>x.classList.add('pulse'));
+}
+
+/* ---------- Componentes ---------- */
+const isC=()=>S.mode==='classic';
+function getPath(p){if(p==='name')return S.name;return p.split('.').reduce((o,k)=>o==null?o:o[k],D)}
+function setPath(p,v){if(p==='name'){S.name=v;persist();return}const ks=p.split('.');let o=D;for(let i=0;i<ks.length-1;i++)o=o[ks[i]];o[ks.at(-1)]=v}
+const fid=b=>'f-'+b.replace(/\./g,'-');
+function F({b,label,tech,sug,req,ph,w,help,numeric,ro,val}){
+  const id=fid(b),v=val!==undefined?val:getPath(b),d=sug?descOf(sug,v):'';
+  return `<div class="f"><label class="lab" for="${id}" ${tech?`title="F1: ${tech}"`:''}><span>${label}</span>${tech?`<code>${tech}</code>`:''}</label>
+  <div class="ctl${req?' req':''}"><input id="${id}" data-bind="${b}" value="${e(v)}" ${sug?`data-suggest="${sug}"`:''} class="${numeric?'':'up'}" ${numeric?'inputmode="numeric"':''} ${ro?'readonly':''} ${ph?`placeholder="${e(ph)}"`:''} style="--w:${w||'16ch'}" autocomplete="off" autocapitalize="characters" spellcheck="false"><span class="desc" id="${id}-d">${e(d)}</span></div>
+  ${help?`<p class="help">${help}</p>`:''}</div>`;
+}
+function RO(label,tech,val,help){return `<div class="f"><span class="lab" ${tech?`title="F1: ${tech}"`:''}><span>${label}</span>${tech?`<code>${tech}</code>`:''}</span><div class="ctl"><output class="val">${e(val)}</output></div>${help?`<p class="help">${help}</p>`:''}</div>`}
+function inp(b,{sug,w,aria,numeric}={}){const id=fid(b);return `<div class="ctl"><input id="${id}" data-bind="${b}" value="${e(getPath(b))}" ${sug?`data-suggest="${sug}"`:''} class="${numeric?'':'up'}" ${numeric?'inputmode="numeric"':''} style="--w:${w||'10ch'}" aria-label="${e(aria)}" autocomplete="off" spellcheck="false"></div>`}
+function head(tc,title,sub){return isC()?'':`<div class="scr-head"><span class="tc">${tc}</span><h1>${title}</h1>${sub?`<p>${sub}</p>`:''}</div>`}
+function btns(list){return `<div class="btns">${list.map(b=>`<button class="btn ${b.cls||''}" data-act="${b.act}" ${b.to?`data-to="${b.to}"`:''}>${b.label}</button>`).join('')}</div>`}
+function flowHTML(c){
+  const it=[];
+  if(c.o)it.push(['Ordem',c.o.VBELN]);
+  if(c.l){it.push(['Remessa',c.l.VBELN]);const mb=db().MKPF.find(m=>m.XBLNR===c.l.VBELN);if(mb)it.push(['Saída mercadoria',mb.MBLNR])}
+  if(c.b)it.push(['Fatura',c.b.VBELN]);
+  if(c.nf){it.push(['NF-e',c.nf.NFENUM]);if(c.nf.BELNR)it.push(['Doc. contábil',c.nf.BELNR])}
+  return `<ol class="flow" aria-label="Fluxo de documentos">${it.map(([l,n])=>`<li><span><small>${l}</small><b>${n}</b></span></li>`).join('')}</ol>`;
+}
+
+/* ---------- Telas ---------- */
+function rHome(){
+  if(isC())return rEasyAccess();
+  const c=cycle(),k=db().KNA1[0],m=db().MARA[0];
+  const complete=c.nf&&c.nf.CODE==='100';
+  const st=[
+    {tc:'VA01',to:'VA01',t:'Criar ordem de venda',d:'O comercial registra o pedido do cliente.',done:!!c.o&&!complete||complete,doc:c.o&&`Ordem ${c.o.VBELN}`},
+    {tc:'VL01N',to:'VL01N',t:'Remessa e saída de mercadoria',d:'A logística separa, faz o picking e baixa o estoque.',done:!!c.l,doc:c.l&&`Remessa ${c.l.VBELN}`},
+    {tc:'VF01',to:'VF01',t:'Faturamento e NF-e',d:'Fatura F2, cálculo de ICMS/IPI e autorização na SEFAZ.',done:!!complete,doc:c.nf&&`NF-e ${c.nf.NFENUM}`}
+  ];
+  if(c.o&&!c.l&&!openOrders().some(o=>o.VBELN===c.o.VBELN))st[1].done=true;
+  const cur=complete?-1:st.findIndex(s=>!s.done);
+  const steps=st.map((s,i)=>{const cls=s.done?'done':i===cur?'cur':'';const chip=s.done?`<span class="chip ok">Concluído · ${e(s.doc||'')}</span>`:i===cur?`<span class="chip cur">Próximo passo</span>`:`<span class="chip">Aguardando</span>`;
+    return `<li class="step ${cls}"><span class="num">${s.done?'✓':i+1}</span><h3><code>${s.tc}</code>${s.t}</h3><p>${s.d}</p><div class="row">${chip}${i===cur?`<button class="btn sm pri" data-act="go" data-to="${s.to}">Abrir ${s.tc}</button>`:`<button class="lnk" data-act="go" data-to="${s.to}">Abrir</button>`}</div></li>`}).join('');
+  return `<div class="home"><div class="stack">
+  <div class="hero"><span class="eyebrow">Cenário Brasil · Order-to-Cash</span><h1>Venda padrão no mercado interno</h1><p>Ambiente já parametrizado. Você executa o ciclo do pedido à nota fiscal com os mesmos códigos de transação, campos e tabelas do SAP SD.</p></div>
+  ${complete?`<div class="done-banner"><b>Ciclo concluído</b><p>Do pedido à NF-e autorizada. Os documentos ficam gravados e o estoque continua baixado. Faça uma nova rodada para fixar a sequência.</p>${flowHTML(c)}<div class="btns"><button class="btn pri" data-act="go" data-to="VA01">Nova rodada (VA01)</button></div></div>`:''}
+  <ol class="steps">${steps}</ol>
+  ${c.o&&!complete?`<section class="panel"><span class="sec-t">Fluxo de documentos (VBFA)</span>${flowHTML(c)}</section>`:''}
+  </div><div class="stack">
+  <section class="panel"><span class="sec-t">Dados mestres carregados</span><dl class="md">
+    <div><dt>Cliente<code>KNA1</code></dt><dd><b>${k.KUNNR}</b> ${e(k.NAME1)}<span>CNPJ ${k.STCD1} · IE ${k.STCD3}</span><span>${e(k.STRAS)} · ${k.ORT01}/${k.REGIO}</span></dd></div>
+    <div><dt>Material<code>MARA</code></dt><dd><b>${m.MATNR}</b> ${e(m.MAKTX)}<span>NCM ${m.STEUC} · ${String(m.BRGEW).replace('.',',')} ${m.GEWEI} por ${m.MEINS}</span></dd></div>
+    <div><dt>Centro<code>T001W</code></dt><dd><b>BR01</b> Fábrica São Paulo<span>Ponto de expedição BR01 · Doca 1</span></dd></div>
+    <div><dt>Depósito<code>MARD</code></dt><dd><b>DEP1</b> Produtos Acabados<span>Estoque livre de FERT-900: ${qf(stock('FERT-900'))} CX</span></dd></div>
+    <div><dt>Preço e impostos<code>A304</code></dt><dd><b>PR00</b> R$ ${money(price('FERT-900'))} por CX<span>ICMS SP→SP 18% · IPI 7% (alíquota didática)</span></dd></div>
+  </dl></section>
+  <section class="panel"><div class="f"><label class="lab" for="f-name"><span>Seu nome no treino</span></label><div class="ctl"><input id="f-name" data-bind="name" value="${e(S.name)}" autocomplete="off" style="font-family:var(--body)"></div><p class="help">O mentor usa esse nome nas dicas.</p></div>
+    ${btns([{act:'go',to:'SE16N',label:'Ver tabelas (SE16N)'},{act:'go',to:'J1BNFE',label:'Monitor NF-e'}])}
+    <button class="btn sm danger" data-act="reset">${D.confirmReset?'Toque de novo para apagar tudo e restaurar':'Restaurar dados mestres e apagar documentos'}</button>
+  </section>${DISC}</div></div>`;
+}
+const DISC='<p class="disc">Projeto educacional independente, sem afiliação com a SAP SE. SAP é marca registrada da SAP SE. Empresas, CNPJs e alíquotas são fictícios ou didáticos.</p>';
+function rEasyAccess(){
+  const leaf=(tc,t)=>`<li><button data-act="go" data-to="${tc}">${svg('tx')}<span>${tc} - ${t}</span></button></li>`;
+  const fold=(t,inner,open=true,ic='tfold')=>`<details ${open?'open':''}><summary>${svg(ic)}<span>${t}</span></summary>${inner}</details>`;
+  return `<div class="ea" role="tree" aria-label="SAP Easy Access">
+    ${fold('Favoritos',`<ul>${leaf('VA01','Criar ordem')}${leaf('VL01N','Fornecimento de saída c/ref. ordem')}${leaf('VF01','Criar documento de faturamento')}${leaf('J1BNFE','Monitor NF-e')}${leaf('SE16N','Navegador geral de tabelas')}</ul>`,true,'tfav')}
+    ${fold('Menu SAP',
+      fold('Escritório','',false)+
+      fold('Componentes multiaplicação','',false)+
+      fold('Logística',
+        fold('Gestão de materiais','',false)+
+        fold('Comercial',
+          fold('Dados mestre','',false)+
+          fold('Vendas',fold('Ordem',`<ul>${leaf('VA01','Criar')}</ul>`))+
+          fold('Expedição e transporte',fold('Fornecimento de saída',fold('Criar',`<ul>${leaf('VL01N','Documento individual')}</ul>`)))+
+          fold('Faturamento',fold('Documento de faturamento',`<ul>${leaf('VF01','Criar')}</ul>`))+
+          fold('Sistema de informação','',false)
+        )+
+        fold('Logistics Execution','',false)+
+        fold('Produção','',false))+
+      fold('Contabilidade',fold('Contabilidade financeira','',false)+fold('Localização Brasil',fold('Nota fiscal eletrônica',`<ul>${leaf('J1BNFE','Monitor NF-e')}</ul>`),false),false)+
+      fold('Recursos Humanos','',false)+
+      fold('Sistemas de informação','',false)+
+      fold('Ferramentas',fold('ABAP Workbench',fold('Síntese',`<ul>${leaf('SE16N','Navegador geral de tabelas')}</ul>`)),false),
+    true,'smenu')}
+  </div>${DISC}`;
+}
+
+function rVA01(){
+  return head('VA01','Criar ordem de venda','Tela inicial')+`<div class="narrow">${resultCard('VA01')}</div><div class="stack narrow">
+  <section class="panel">${F({b:'va01.AUART',label:'Tipo de ordem',tech:'VBAK-AUART',sug:'auart',req:1,w:'5ch',help:'Define as regras do documento: OR é uma venda comercial normal, não devolução nem amostra grátis.'})}</section>
+  <fieldset class="panel"><legend>Dados organizacionais</legend>
+    ${F({b:'va01.VKORG',label:'Organização de vendas',tech:'VBAK-VKORG',sug:'vkorg',req:1,w:'6ch',help:'A unidade de negócio que vende, para relatórios e impostos.'})}
+    ${F({b:'va01.VTWEG',label:'Canal de distribuição',tech:'VBAK-VTWEG',sug:'vtweg',req:1,w:'4ch',help:'Estratégia de mercado (atacado, varejo, e-commerce). O preço pode mudar por canal.'})}
+    ${F({b:'va01.SPART',label:'Setor de atividade',tech:'VBAK-SPART',sug:'spart',req:1,w:'4ch',help:'Agrupa linhas de produto, como doces ou bebidas.'})}
+  </fieldset>
+  ${btns([{act:'enter',label:'Avançar',cls:'pri'}])}</div>`;
+}
+function cinfoHTML(){const k=cust(up(D.va01b.KUNNR));return k?`<b>${e(k.NAME1)}</b><span>CNPJ ${k.STCD1} · IE ${k.STCD3}</span><span>${e(k.STRAS)} · ${k.ORT01}/${k.REGIO} · CEP ${k.PSTLZ}</span><span>Recebedor da mercadoria: ${k.KUNNR} (mesmo cliente)</span>`:''}
+function calcDraft(){return calc(up(D.va01b.KUNNR),D.va01b.items.map(it=>({MATNR:up(it.MATNR),q:num(it.KWMENG),WERKS:up(it.WERKS)})))}
+function itemPriceHTML(l){if(!l.m)return '<span>Informe o material para ver o preço.</span>';const a=atp(l.m.MATNR);return `<span>PR00 <b>R$ ${money(l.p)}</b> / CX</span><span>Líquido <b>R$ ${money(l.net)}</b></span><span>Disponível <b>${qf(a)} CX</b></span>`}
+function pricingHTML(){
+  const c=calcDraft();
+  return `<div class="tot"><div class="tot-main"><div><span>Preço total líquido</span><b>R$ ${money(c.net)}</b></div><div><span>Impostos (BR)</span><b>R$ ${money(c.tax)}</b></div></div>
+  <dl class="kv"><div><dt>PR00 · Preço de venda</dt><dd>${money(c.net)}</dd></div>
+  <div><dt>ICM3 · ICMS ${c.k?`${c.ir}% SP→${c.k.REGIO}`:''} (incluso no preço)</dt><dd>${money(c.icms)}</dd></div>
+  <div><dt>IPI3 · IPI ${c.lines.find(l=>l.m)?.pr??''}% (somado à nota)</dt><dd>${money(c.ipi)}</dd></div>
+  <div class="grand"><dt>Total da NF-e</dt><dd>R$ ${money(c.total)}</dd></div></dl></div>`;
+}
+function rVA01b(){
+  const d=D.va01b,c=calcDraft();
+  let items;
+  if(isC()){
+    items=`<div class="tbl-wrap"><table class="grid"><thead><tr><th>Item</th><th>Material</th><th>Qtd.ordem</th><th>UM</th><th>Centro</th><th>Denominação</th><th class="r">Valor líquido</th><th></th></tr></thead><tbody>
+    ${d.items.map((it,i)=>{const p=`va01b.items.${i}`,pos=pad((i+1)*10,6);return `<tr><td>${pos}</td><td>${inp(p+'.MATNR',{sug:'matnr',w:'12ch',aria:'Material item '+pos})}</td><td>${inp(p+'.KWMENG',{w:'7ch',aria:'Quantidade item '+pos,numeric:1})}</td><td>CX</td><td>${inp(p+'.WERKS',{sug:'werks',w:'6ch',aria:'Centro item '+pos})}</td><td id="${fid(p+'.MATNR')}-d">${e(descOf('matnr',it.MATNR))}</td><td class="r" id="ipv-${i}">${money(c.lines[i].net)}</td><td>${i?`<button class="lnk" data-act="delitem" data-i="${i}" aria-label="Remover item ${pos}">✕</button>`:''}</td></tr>`}).join('')}
+    </tbody></table></div>`;
+  }else{
+    items=d.items.map((it,i)=>{const p=`va01b.items.${i}`;return `<div class="item"><div class="item-h"><span class="pos">Item ${pad((i+1)*10,6)}</span><code>VBAP-POSNR</code>${i?`<button class="lnk" data-act="delitem" data-i="${i}">Remover</button>`:''}</div>
+    <div class="item-g">${F({b:p+'.MATNR',label:'Material',tech:'VBAP-MATNR',sug:'matnr',req:1,ph:'FERT-…',w:'12ch'})}${F({b:p+'.KWMENG',label:'Qtd. pedida (CX)',tech:'VBAP-KWMENG',req:1,ph:'50',w:'8ch',numeric:1})}${F({b:p+'.WERKS',label:'Centro',tech:'VBAP-WERKS',sug:'werks',req:1,w:'6ch'})}</div>
+    <div class="ip" id="ip-${i}">${itemPriceHTML(c.lines[i])}</div></div>`}).join('');
+  }
+  return head('VA01','Ordem padrão: dados gerais',`${D.va01.AUART} · ${D.va01.VKORG}/${D.va01.VTWEG}/${D.va01.SPART}`)+`<div class="split"><div class="stack">
+  <section class="panel">
+    ${F({b:'va01b.KUNNR',label:'Emissor da ordem',tech:'VBAK-KUNNR',sug:'kunnr',req:1,ph:'Digite 100…',w:'10ch',help:'O cliente que compra. O SAP puxa endereço e dados fiscais do cadastro (KNA1).'})}
+    <div class="cinfo" id="cinfo">${cinfoHTML()}</div>
+    ${F({b:'va01b.BSTKD',label:'Nº pedido do cliente',tech:'VBAK-BSTNK',w:'14ch',help:'O número do pedido de compra enviado pelo cliente.'})}
+    ${RO('Data do pedido','VBAK-BSTDK',TODAY)}
+  </section>
+  <section class="panel"><span class="sec-t">Itens do pedido</span>${isC()?'':'<p class="help">O SAP numera as linhas de 10 em 10. Um segundo produto vira o item 000020.</p>'}${items}
+    <div class="btns"><button class="btn sm" data-act="additem">+ Adicionar item</button></div></section></div>
+  <aside><section class="panel" id="pricing">${pricingHTML()}</section>
+  ${btns([{act:'enter',label:'Verificar'},{act:'save',label:'Salvar ordem',cls:'pri'}])}</aside></div>`;
+}
+function updatePricing(){
+  const c=calcDraft();
+  const p=$('#pricing');if(p)p.innerHTML=pricingHTML();
+  const ci=$('#cinfo');if(ci)ci.innerHTML=cinfoHTML();
+  c.lines.forEach((l,i)=>{const a=document.getElementById('ip-'+i);if(a)a.innerHTML=itemPriceHTML(l);const b=document.getElementById('ipv-'+i);if(b)b.textContent=money(l.net)});
+}
+
+function rVL01(){
+  return head('VL01N','Criar remessa de fornecimento','Com referência à ordem de venda')+`<div class="narrow">${resultCard('VL01N')}</div><div class="stack narrow"><section class="panel">
+  ${F({b:'vl01.VSTEL',label:'Ponto de expedição',tech:'LIKP-VSTEL',sug:'vstel',req:1,w:'6ch',help:'O local físico de saída dentro do centro, como a doca de carregamento.'})}
+  ${F({b:'vl01.LEDAT',label:'Data de seleção',tech:'LV50C-DATBI',req:1,w:'11ch',numeric:1,help:'O SAP seleciona os itens da ordem com data de remessa até este dia.'})}
+  </section><fieldset class="panel"><legend>Dados da ordem</legend>
+  ${F({b:'vl01.VBELN',label:'Ordem de venda',tech:'LV50C-VBELN',sug:'ordem',req:1,ph:'Ex.: 14502',w:'10ch',numeric:1,help:'A ordem que será fornecida. Toque no campo para ver as ordens em aberto.'})}
+  </fieldset>${btns([{act:'enter',label:'Avançar para o picking',cls:'pri'}])}</div>`;
+}
+function rVL01b(){
+  const r=D.vl01b,k=cust(r.KUNNR);
+  let items;
+  if(isC()){
+    items=`<div class="tbl-wrap"><table class="grid"><thead><tr><th>Item</th><th>Material</th><th>Denominação</th><th class="r">Qtd.fornecida</th><th>UM</th><th>Qtd.picking</th><th>Depósito</th><th class="r">Estoque livre</th></tr></thead><tbody>
+    ${r.items.map((it,i)=>{const p=`vl01b.items.${i}`;return `<tr><td>${it.POSNR}</td><td>${it.MATNR}</td><td>${e(it.ARKTX)}</td><td class="r">${qf(it.LFIMG)}</td><td>CX</td><td>${inp(p+'.PIKMG',{w:'7ch',aria:'Quantidade de picking item '+it.POSNR,numeric:1})}</td><td>${inp(p+'.LGORT',{sug:'lgort',w:'6ch',aria:'Depósito item '+it.POSNR})}</td><td class="r">${qf(stock(it.MATNR,it.WERKS,up(it.LGORT)))}</td></tr>`}).join('')}</tbody></table></div>`;
+  }else{
+    items=r.items.map((it,i)=>{const p=`vl01b.items.${i}`;const s=stock(it.MATNR,it.WERKS,up(it.LGORT)||'DEP1');return `<div class="item"><div class="item-h"><span class="pos">Item ${it.POSNR}</span><code>LIPS-POSNR</code></div>
+    <div class="ip"><span><b>${it.MATNR}</b> ${e(it.ARKTX)}</span><span>Ref. ordem ${r.order} / ${it.VGPOS}</span></div>
+    <div class="item-g">${RO('Qtd. fornecida (CX)','LIPS-LFIMG',qf(it.LFIMG))}${F({b:p+'.PIKMG',label:'Qtd. picking (CX)',tech:'LIPS-PIKMG',req:1,ph:'0',w:'8ch',numeric:1})}${F({b:p+'.LGORT',label:'Depósito',tech:'LIPS-LGORT',sug:'lgort',req:1,w:'6ch'})}</div>
+    <div class="stockline"><span>Estoque livre ${it.MATNR} · ${it.WERKS}/${up(it.LGORT)||'DEP1'}</span><span>${qf(s)} → ${qf(s-it.LFIMG)} CX</span></div></div>`}).join('');
+  }
+  return head('VL01N','Remessa: picking e saída',`Ref. ordem ${r.order}`)+`<div class="stack">
+  <section class="panel">${RO('Remessa','LIKP-VBELN','(nova — número na gravação)')}${RO('Recebedor da mercadoria','LIKP-KUNNR',`${r.KUNNR} ${k?k.NAME1:''}`)}${RO('Ponto de expedição · Data','LIKP-VSTEL',`${r.VSTEL} · ${r.LEDAT}`)}</section>
+  <section class="panel"><span class="sec-t">Itens da remessa</span>${isC()?'':'<p class="help">Qtd. picking é o que o operador realmente separou na prateleira. Precisa ser igual à quantidade fornecida para fechar o processo.</p>'}${items}</section>
+  ${btns([{act:'enter',label:'Verificar'},{act:'pgi',label:'Registrar saída de mercadoria (PGI)',cls:'pri'}])}</div>`;
+}
+function rVF01(){
+  let prev='';
+  if(D.vf01.preview){const l=db().LIKP.find(x=>x.VBELN===up(D.vf01.VBELN));if(l){const c=billCalc(l);prev=`<section class="panel"><span class="sec-t">Prévia da fatura F2</span><div class="tbl-wrap"><table class="grid"><thead><tr><th>Item</th><th>Material</th><th class="r">Qtd.faturada</th><th class="r">Valor líquido</th></tr></thead><tbody>${c.lines.map(x=>`<tr><td>${x.POSNR}</td><td>${x.MATNR}</td><td class="r">${qf(x.q)} CX</td><td class="r">${money(x.net)}</td></tr>`).join('')}</tbody></table></div>
+  <dl class="kv"><div><dt>Valor líquido</dt><dd>${money(c.net)}</dd></div><div><dt>Impostos (ICMS + IPI)</dt><dd>${money(c.tax)}</dd></div><div class="grand"><dt>Total da NF-e</dt><dd>R$ ${money(c.total)}</dd></div></dl></section>`}}
+  return head('VF01','Criar documento de faturamento','Fatura comercial e NF-e')+`<div class="stack narrow"><section class="panel">
+  ${F({b:'vf01.FKART',label:'Tipo de faturamento',tech:'RV60A-FKART',sug:'fkart',req:1,w:'4ch',help:'F2 é a fatura padrão: gera a duplicata para o cliente pagar e aciona o módulo fiscal.'})}
+  ${RO('Data de faturamento','RV60A-FKDAT',TODAY)}
+  </section><fieldset class="panel"><legend>Documentos a processar</legend>
+  ${F({b:'vf01.VBELN',label:'Documento de referência',tech:'KOMFK-VBELN',sug:'remessa',req:1,ph:'Ex.: 80012433',w:'10ch',numeric:1,help:'O número da remessa com saída de mercadoria registrada.'})}
+  </fieldset>${prev}${btns([{act:'enter',label:'Verificar'},{act:'save',label:'Executar e gerar fatura',cls:'pri'}])}</div>`;
+}
+function rNFe(){
+  const list=db().J_1BNFDOC.slice().reverse();
+  if(!list.length)return head('J1BNFE','Monitor de Nota Fiscal','Simulação SEFAZ Brasil')+`<section class="panel"><p class="empty">Nenhuma NF-e emitida ainda. A nota nasce quando você fatura uma remessa na VF01.</p>${btns([{act:'go',to:'VF01',label:'Abrir VF01',cls:'pri'}])}</section>`;
+  const sel=list.find(n=>n.DOCNUM===D.nfSel)||list[0];
+  const k=cust(sel.PARID),lines=db().J_1BNFLIN.filter(x=>x.DOCNUM===sel.DOCNUM),fi=db().BSEG.filter(x=>x.BELNR===sel.BELNR);
+  const auth=sel.CODE==='100';
+  const c=cycle();const flow=c.nf&&c.nf.DOCNUM===sel.DOCNUM?flowHTML(c):'';
+  return head('J1BNFE','Monitor de Nota Fiscal','Simulação SEFAZ Brasil')+`<div class="stack">
+  ${list.length>1?`<div class="nflist">${list.map(n=>`<button class="nfrow ${n===sel?'on':''}" data-act="nfsel" data-doc="${n.DOCNUM}"><b>NF-e ${n.NFENUM}-${n.SERIES}</b><span>${n.CODE==='100'?'🟢 100':'⏳ envio'}</span><small>${e(cust(n.PARID)?.NAME1||n.PARID)}</small><small>R$ ${money(n.NFTOT)}</small></button>`).join('')}</div>`:''}
+  <div class="nf-status ${auth?'auth':''}">${auth?'<span class="dot" aria-hidden="true"></span>':'<span class="spin" aria-hidden="true"></span>'}<div><b>${auth?'100 · Autorizado o uso da NF-e':'Aguardando retorno da SEFAZ-SP…'}</b><small>${auth?`Protocolo ${sel.AUTHCOD} · ${sel.AUTHDATE}`:'Lote transmitido. Consultando recibo.'}</small></div></div>
+  <section class="panel"><span class="sec-t">Chave de acesso</span><div class="key" id="nfkey">${fKey(sel.ACCKEY)}</div><div class="btns"><button class="btn sm" data-act="copykey">Copiar chave</button></div>
+  <dl class="kv"><div><dt>Nº documento (DOCNUM)</dt><dd>${sel.DOCNUM}</dd></div><div><dt>Fatura de referência</dt><dd>${sel.REFKEY}</dd></div><div><dt>Modelo · Série · Número</dt><dd>${sel.MODEL} · ${sel.SERIES} · ${sel.NFENUM}</dd></div></dl>
+  ${flow}</section>
+  <div class="danfe" aria-label="DANFE simplificado">
+    <div class="dh"><strong>DANFE</strong><span>Documento Auxiliar da<br>Nota Fiscal Eletrônica · 1 - Saída</span></div>
+    <div class="bx">
+      <div class="full"><i>Emitente</i><span class="v">${e(EMIT.NAME)} · CNPJ ${fCNPJ(EMIT.CNPJ)} · IE ${EMIT.IE}</span></div>
+      <div class="full"><i>Natureza da operação</i><span class="v">${sel.CFOP==='5101'?'Venda de produção do estabelecimento':'Venda de produção do estab. (interestadual)'}</span></div>
+      <div><i>CFOP</i><span class="v">${sel.CFOP}</span></div><div><i>Data de emissão</i><span class="v">${sel.DOCDAT}</span></div>
+      <div class="full"><i>Destinatário</i><span class="v">${e(k?.NAME1||'')} · CNPJ ${k?.STCD1||''} · IE ${k?.STCD3||''} · ${k?.ORT01||''}/${k?.REGIO||''}</span></div>
+    </div>
+    <div class="t">Dados dos produtos</div>
+    <div class="tbl-wrap" style="border:0;border-radius:0"><table class="grid"><thead><tr><th>Código</th><th>Descrição</th><th>NCM</th><th>CST</th><th class="r">Qtd</th><th class="r">V.unit</th><th class="r">V.total</th><th class="r">ICMS</th><th class="r">IPI</th></tr></thead><tbody>
+    ${lines.map(l=>`<tr><td>${l.MATNR}</td><td>${e(l.MAKTX)}</td><td>${l.NBM}</td><td>000</td><td class="r">${qf(l.MENGE)} ${l.MEINS}</td><td class="r">${money(l.NETPR)}</td><td class="r">${money(l.NETWR)}</td><td class="r">${money(l.ICMS)}</td><td class="r">${money(l.IPI)}</td></tr>`).join('')}</tbody></table></div>
+    <div class="t">Cálculo do imposto</div>
+    <div class="bx">
+      <div><i>Base de cálculo ICMS</i><span class="v">${money(sel.NFNET)}</span></div><div><i>Valor do ICMS (${sel.ICMSR}%)</i><span class="v">${money(sel.ICMS)}</span></div>
+      <div><i>Valor dos produtos</i><span class="v">${money(sel.NFNET)}</span></div><div><i>Valor do IPI</i><span class="v">${money(sel.IPI)}</span></div>
+      <div class="full" style="border-bottom:0"><i>Valor total da nota</i><span class="v" style="font-size:16px;font-weight:600">R$ ${money(sel.NFTOT)}</span></div>
+    </div>
+  </div>
+  ${fi.length?`<section class="panel"><span class="sec-t">Contabilização · Doc. ${sel.BELNR} (BKPF/BSEG)</span><div class="tbl-wrap"><table class="grid"><thead><tr><th>Lin</th><th>CL</th><th>Conta</th><th>Texto</th><th class="r">Débito</th><th class="r">Crédito</th></tr></thead><tbody>${fi.map(x=>`<tr><td>${x.BUZEI}</td><td>${x.BSCHL}</td><td>${x.KONTO}</td><td>${e(x.TXT)}</td><td class="r">${x.SHKZG==='S'?money(x.DMBTR):''}</td><td class="r">${x.SHKZG==='H'?money(x.DMBTR):''}</td></tr>`).join('')}</tbody></table></div><p class="help">O cliente fica com uma partida em aberto de R$ ${money(sel.NFTOT)}, a duplicata a receber.</p></section>`:''}
+  </div>`;
+}
+const TDESC={KNA1:'Mestre de clientes',MARA:'Dados gerais de material',MARC:'Dados de centro do material',MARD:'Estoque por depósito',A304:'Condição de preço PR00',J_1BTXIC1:'Alíquotas de ICMS',J_1BTXIP1:'Alíquotas de IPI',T001W:'Centros',T001L:'Depósitos',TVKO:'Organizações de vendas',TVTW:'Canais de distribuição',TSPA:'Setores de atividade',TVAK:'Tipos de documento de vendas',TVST:'Pontos de expedição',
+  VBAK:'Documento de vendas: cabeçalho',VBAP:'Documento de vendas: item',LIKP:'Remessa: cabeçalho',LIPS:'Remessa: item',MKPF:'Documento de material: cabeçalho',MSEG:'Documento de material: item',VBRK:'Faturamento: cabeçalho',VBRP:'Faturamento: item',VBFA:'Fluxo de documentos',J_1BNFDOC:'Nota fiscal: cabeçalho',J_1BNFLIN:'Nota fiscal: item',BKPF:'Contabilidade: cabeçalho',BSEG:'Contabilidade: item'};
+const TGROUP=[['Dados mestres',['KNA1','MARA','MARC','MARD','A304','J_1BTXIC1','J_1BTXIP1']],['Documentos do aluno',['VBAK','VBAP','LIKP','LIPS','MKPF','MSEG','VBRK','VBRP','VBFA','J_1BNFDOC','J_1BNFLIN','BKPF','BSEG']],['Customizing',['T001W','T001L','TVKO','TVTW','TSPA','TVAK','TVST']]];
+function rSE16(){
+  const t=D.se16.tab,rows=db()[t]||[];
+  const cols=[...new Set(rows.flatMap(r=>Object.keys(r)))];
+  const fmt=v=>typeof v==='number'?(Number.isInteger(v)?String(v):String(v).replace('.',',')):e(v);
+  return head('SE16N','Navegador geral de tabelas','Os dados gravados por cada transação')+`<div class="stack">
+  <section class="panel se-pick"><div class="f"><label class="lab" for="f-se16-tab"><span>Tabela</span><code>GD-TAB</code></label><div class="ctl"><select id="f-se16-tab" data-bind="se16.tab">${TGROUP.map(([g,ts])=>`<optgroup label="${g}">${ts.map(x=>`<option value="${x}" ${x===t?'selected':''}>${x} · ${TDESC[x]} (${db()[x].length})</option>`).join('')}</optgroup>`).join('')}</select></div></div></section>
+  <p class="cnt">${t} · ${TDESC[t]} · ${rows.length} entrada${rows.length===1?'':'s'}</p>
+  ${rows.length?`<div class="tbl-wrap"><table class="grid"><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${cols.map(c=>`<td class="${typeof r[c]==='number'?'r':''}">${fmt(r[c])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:`<div class="tbl-wrap"><p class="empty">Nenhum valor encontrado. ${['VBAK','VBAP','LIKP','LIPS','MKPF','MSEG','VBRK','VBRP','VBFA','J_1BNFDOC','J_1BNFLIN','BKPF','BSEG'].includes(t)?'Esta tabela recebe dados quando você executa o fluxo.':''}</p></div>`}
+  </div>`;
+}
+function resultCard(route){
+  const r=D.result;if(!r||r.route!==route)return '';
+  if(r.kind==='order')return `<section class="res"><span class="eyebrow">Gravado em VBAK / VBAP</span><div class="res-n"><small>Ordem padrão</small><b>${r.doc}</b></div><p>${e(r.cust)} · ${qf(r.qty)} CX · R$ ${money(r.net)} líquido</p>${btns([{act:'go',to:'VL01N',label:'Próximo: criar remessa (VL01N)',cls:'pri'}])}</section>`;
+  if(r.kind==='pgi'){const max=Math.max(r.from,200);return `<section class="res"><span class="eyebrow">Gravado em LIKP / LIPS · MKPF / MSEG</span><div class="res-n"><small>Remessa</small><b>${r.doc}</b></div><p>Saída de mercadoria ${r.mblnr} · movimento 601</p>
+    <div class="stockline"><span>Estoque livre ${r.mat} · DEP1</span><span>${qf(r.from)} → ${qf(r.to)} CX</span></div><div class="meter" role="img" aria-label="Estoque caiu de ${r.from} para ${r.to} caixas"><span style="--from:${r.from/max*100}%;--to:${r.to/max*100}%"></span></div>
+    ${btns([{act:'go',to:'VF01',label:'Próximo: faturar (VF01)',cls:'pri'}])}</section>`}
+  return '';
+}
+
+/* ---------- Ações das transações ---------- */
+function va01Enter(){
+  const d=D.va01,A=up(d.AUART),VK=up(d.VKORG),VT=up(d.VTWEG),SP=up(d.SPART);
+  if(!A||!VK||!VT||!SP){markBad('#'+fid(!A?'va01.AUART':!VK?'va01.VKORG':!VT?'va01.VTWEG':'va01.SPART'));return msg('e','Preencher todos os campos obrigatórios')}
+  if(A!=='OR'){markBad('#f-va01-AUART');return msg('e',['RE','FD','KB','CS','SO','CR','DR'].includes(A)?`Tipo de documento de vendas ${A} não está liberado neste cenário. Use OR (ordem padrão)`:`Tipo de documento de vendas ${A} não existe`)}
+  if(!db().TVKO.some(r=>r.VKORG===VK)){markBad('#f-va01-VKORG');return msg('e',`Organização de vendas ${VK} não existe`)}
+  if(!db().TVTW.some(r=>r.VTWEG===VT)){markBad('#f-va01-VTWEG');return msg('e',`Canal de distribuição ${VT} não existe`)}
+  if(!db().TSPA.some(r=>r.SPART===SP)){markBad('#f-va01-SPART');return msg('e',`Setor de atividade ${SP} não existe`)}
+  clearMsg();go('VA01_2');
+}
+function va01Check(quiet){
+  const d=D.va01b,K=up(d.KUNNR);
+  if(!K){markBad('#f-va01b-KUNNR');return msg('e','Preencher todos os campos obrigatórios: Emissor da ordem')}
+  if(!cust(K)){markBad('#f-va01b-KUNNR');mentor('cust_err');return msg('e',`Emissor da ordem ${K} não foi criado para a área de vendas ${up(D.va01.VKORG)}/${up(D.va01.VTWEG)}/${up(D.va01.SPART)}`)}
+  const rows=d.items.map((it,i)=>({i,pos:pad((i+1)*10,6),M:up(it.MATNR),W:up(it.WERKS),q:num(it.KWMENG),raw:String(it.KWMENG).trim()})).filter(r=>r.M||r.raw);
+  if(!rows.length){markBad('#f-va01b-items-0-MATNR');return msg('e','Nenhum item foi entrado. Entre pelo menos um material')}
+  for(const r of rows){
+    const b=`#f-va01b-items-${r.i}-`;
+    if(!r.M){markBad(b+'MATNR');return msg('e',`Entre o material no item ${r.pos}`)}
+    if(!db().T001W.some(x=>x.WERKS===r.W)){markBad(b+'WERKS');return msg('e',`Centro ${r.W||'(vazio)'} não existe`)}
+    if(!mat(r.M)||!marc(r.M,r.W)){markBad(b+'MATNR');mentor('mat_err');return msg('e',`Código de material ${r.M} não cadastrado no centro ${r.W}`)}
+    if(!Number.isInteger(r.q)||r.q<=0){markBad(b+'KWMENG');return msg('e',`Entre uma quantidade válida para o item ${r.pos}`)}
+  }
+  const short=rows.find(r=>r.q>atp(r.M));
+  if(short){const a=atp(short.M);msg('w',`Disponibilidade: ${qf(Math.max(a,0))} CX de ${short.M} disponíveis em ${short.W}. O item ${short.pos} será confirmado parcialmente`)}
+  else if(!quiet){isC()?clearMsg():msg('i','Itens verificados: preço PR00 e impostos determinados')}
+  return {K,rows};
+}
+function va01Save(){
+  const ok=va01Check(true);if(!ok)return;
+  const no=String(S.nr.VA++),c=calc(ok.K,ok.rows.map(r=>({MATNR:r.M,q:r.q,WERKS:r.W})));
+  db().VBAK.push({VBELN:no,ERDAT:TODAY,ERNAM:ernam(),AUART:'OR',VKORG:up(D.va01.VKORG),VTWEG:up(D.va01.VTWEG),SPART:up(D.va01.SPART),KUNNR:ok.K,BSTNK:up(D.va01b.BSTKD),NETWR:c.net,WAERK:'BRL'});
+  c.lines.forEach((l,i)=>db().VBAP.push({VBELN:no,POSNR:pad((i+1)*10,6),MATNR:l.MATNR,ARKTX:l.m.MAKTX,KWMENG:l.q,VRKME:'CX',WERKS:l.WERKS,NETPR:l.p,NETWR:l.net,MWSBP:r2(l.icms+l.ipi)}));
+  persist();
+  D.va01b=freshVA01b();
+  D.result={route:'VA01',kind:'order',doc:no,cust:cust(ok.K).NAME1,qty:c.lines.reduce((a,l)=>a+l.q,0),net:c.net};
+  go('VA01');msg('s',`Ordem padrão ${no} foi salva`);mentor('va01_saved',{doc:no});
+}
+function vl01Enter(){
+  const d=D.vl01,VS=up(d.VSTEL),DT=String(d.LEDAT).trim(),VB=up(d.VBELN);
+  if(!VS||!DT||!VB){markBad('#'+fid(!VS?'vl01.VSTEL':!DT?'vl01.LEDAT':'vl01.VBELN'));return msg('e','Preencher todos os campos obrigatórios')}
+  if(!db().TVST.some(r=>r.VSTEL===VS)){markBad('#f-vl01-VSTEL');return msg('e',`Ponto de expedição ${VS} não existe`)}
+  if(!/^\d{2}\.\d{2}\.\d{4}$/.test(DT)){markBad('#f-vl01-LEDAT');return msg('e','Entre a data no formato DD.MM.AAAA')}
+  const o=db().VBAK.find(x=>x.VBELN===VB);
+  if(!o){markBad('#f-vl01-VBELN');if(db().LIKP.some(x=>x.VBELN===VB))return msg('e',`${VB} é uma remessa. Aqui a referência é a ordem de venda`);return msg('e',`Documento de vendas ${VB} não existe`)}
+  const its=db().VBAP.filter(i=>i.VBELN===VB&&openQty(i)>0);
+  if(!its.length){markBad('#f-vl01-VBELN');return msg('e',`Ordem ${VB} não contém itens relevantes para remessa (já fornecida)`)}
+  const items=its.map((it,i)=>{const open=openQty(it),av=Math.max(stock(it.MATNR,it.WERKS),0);return {POSNR:pad((i+1)*10,6),VGPOS:it.POSNR,MATNR:it.MATNR,ARKTX:it.ARKTX,WERKS:it.WERKS,open,LFIMG:Math.min(open,av),PIKMG:'',LGORT:'DEP1'}}).filter(x=>x.LFIMG>0);
+  if(!items.length){mentor('deficit');return msg('e',`Déficit de estoque de utilização livre: ${its[0].MATNR} ${its[0].WERKS} DEP1`)}
+  D.vl01b={order:VB,KUNNR:o.KUNNR,VSTEL:VS,LEDAT:DT,items};
+  if(items.some(x=>x.LFIMG<x.open))msg('w','Quantidade de remessa reduzida por falta de estoque livre');else clearMsg();
+  go('VL01N_2');
+}
+function vl01Check(quiet){
+  for(const [i,it] of D.vl01b.items.entries()){
+    const L=up(it.LGORT),b=`#f-vl01b-items-${i}-`,p=num(it.PIKMG);
+    if(!db().T001L.some(x=>x.WERKS===it.WERKS&&x.LGORT===L)){markBad(b+'LGORT');return msg('e',`Depósito ${L||'(vazio)'} não existe no centro ${it.WERKS}`)}
+    if(String(it.PIKMG).trim()===''||!Number.isFinite(p)){markBad(b+'PIKMG');return msg('e',`Entre a quantidade de picking do item ${it.POSNR}`)}
+    if(p!==it.LFIMG){markBad(b+'PIKMG');mentor('pick_mismatch');return msg('e',`Quantidade de picking (${qf(p)}) difere da quantidade fornecida (${qf(it.LFIMG)}) no item ${it.POSNR}`)}
+    const s=stock(it.MATNR,it.WERKS,L);
+    if(s<it.LFIMG){mentor('deficit');return msg('e',`Déficit de estoque de utilização livre de ${qf(it.LFIMG-s)} CX: ${it.MATNR} ${it.WERKS} ${L}`)}
+  }
+  if(!quiet)msg('i','Picking completo. Remessa pronta para a saída de mercadoria');
+  return true;
+}
+function pgi(){
+  if(!vl01Check(true))return;
+  const r=D.vl01b,vb=String(S.nr.VL++),mb=String(S.nr.MB++),it0=r.items[0];
+  const from=stock(it0.MATNR,it0.WERKS,up(it0.LGORT));
+  db().LIKP.push({VBELN:vb,LFART:'LF',VSTEL:r.VSTEL,LFDAT:r.LEDAT,KUNNR:r.KUNNR,BTGEW:r2(r.items.reduce((a,x)=>a+x.LFIMG*(mat(x.MATNR)?.BRGEW||0),0)),GEWEI:'KG',WADAT_IST:TODAY,WBSTK:'C',FKSTK:'A'});
+  db().MKPF.push({MBLNR:mb,MJAHR:NOW.getFullYear(),BUDAT:TODAY,USNAM:ernam(),XBLNR:vb});
+  r.items.forEach((x,i)=>{const L=up(x.LGORT);
+    db().LIPS.push({VBELN:vb,POSNR:x.POSNR,MATNR:x.MATNR,ARKTX:x.ARKTX,LFIMG:x.LFIMG,PIKMG:num(x.PIKMG),VRKME:'CX',WERKS:x.WERKS,LGORT:L,VGBEL:r.order,VGPOS:x.VGPOS});
+    db().MSEG.push({MBLNR:mb,ZEILE:pad(i+1,4),BWART:'601',MATNR:x.MATNR,WERKS:x.WERKS,LGORT:L,MENGE:x.LFIMG,MEINS:'CX',KUNNR:r.KUNNR});
+    mard(x.MATNR,x.WERKS,L).LABST-=x.LFIMG;
+    db().VBFA.push({VBELV:r.order,POSNV:x.VGPOS,VBELN:vb,POSNN:x.POSNR,VBTYP_N:'J',RFMNG:x.LFIMG});
+    db().VBFA.push({VBELV:vb,POSNV:x.POSNR,VBELN:mb,POSNN:pad(i+1,6),VBTYP_N:'R',RFMNG:x.LFIMG});
+  });
+  persist();
+  const to=stock(it0.MATNR,it0.WERKS,up(it0.LGORT));
+  D.vl01b=null;D.vl01.VBELN='';
+  D.result={route:'VL01N',kind:'pgi',doc:vb,mblnr:mb,mat:it0.MATNR,from,to};
+  go('VL01N');msg('s',`Remessa ${vb} gravada · Saída de mercadoria ${mb} registrada`);mentor('pgi_done',{from,to,mat:it0.MATNR});
+}
+function billCalc(l){
+  const lips=db().LIPS.filter(x=>x.VBELN===l.VBELN);
+  const c=calc(l.KUNNR,lips.map(x=>{const op=db().VBAP.find(v=>v.VBELN===x.VGBEL&&v.POSNR===x.VGPOS);return {MATNR:x.MATNR,q:x.LFIMG,p:op?op.NETPR:undefined,POSNR:x.POSNR,VGBEL:x.VGBEL,VGPOS:x.VGPOS}}));
+  return c;
+}
+function vf01Check(){
+  const VB=up(D.vf01.VBELN),FK=up(D.vf01.FKART);
+  if(!FK||!VB){markBad('#'+fid(!FK?'vf01.FKART':'vf01.VBELN'));return msg('e','Preencher todos os campos obrigatórios')}
+  if(FK!=='F2'){markBad('#f-vf01-FKART');return msg('e',['F1','F8','G2','L2','RE','S1'].includes(FK)?`Tipo de faturamento ${FK} não está liberado neste cenário. Use F2`:`Tipo de faturamento ${FK} não existe`)}
+  const l=db().LIKP.find(x=>x.VBELN===VB);
+  if(!l){markBad('#f-vf01-VBELN');if(db().VBAK.some(x=>x.VBELN===VB)){mentor('vf_ref');return msg('e',`O documento ${VB} é uma ordem de venda. O faturamento é feito com base na remessa`)}return msg('e',`Documento ${VB} não existe`)}
+  if(l.WBSTK!=='C'){markBad('#f-vf01-VBELN');return msg('e',`Saída de mercadoria não registrada para a remessa ${VB}`)}
+  if(l.FKSTK==='C'){markBad('#f-vf01-VBELN');const bp=db().VBRP.find(x=>x.VGBEL===VB);return msg('e',`A remessa ${VB} já foi faturada completamente${bp?` (documento ${bp.VBELN})`:''}`)}
+  return l;
+}
+function vf01Enter(){const l=vf01Check();if(!l)return;D.vf01.preview=true;render();msg('i','Itens copiados da remessa. Grave para gerar a fatura e a NF-e')}
+function vf01Save(){
+  const l=vf01Check();if(!l)return;
+  const c=billCalc(l),k=c.k,bill=String(S.nr.VF++),nfn=S.nr.NF++,doc=pad(S.nr.DOC++,10),fi=String(S.nr.FI++);
+  const cfop=k.REGIO==='SP'?'5101':'6101';
+  db().VBRK.push({VBELN:bill,FKART:'F2',FKDAT:TODAY,KUNRG:k.KUNNR,NETWR:c.net,MWSBK:c.tax,WAERK:'BRL',RFBSK:'C',BELNR:fi});
+  c.lines.forEach((x,i)=>{
+    db().VBRP.push({VBELN:bill,POSNR:pad((i+1)*10,6),MATNR:x.MATNR,FKIMG:x.q,VRKME:'CX',NETWR:x.net,MWSBP:r2(x.icms+x.ipi),VGBEL:l.VBELN,VGPOS:x.POSNR,AUBEL:x.VGBEL});
+    db().VBFA.push({VBELV:l.VBELN,POSNV:x.POSNR,VBELN:bill,POSNN:pad((i+1)*10,6),VBTYP_N:'M',RFMNG:x.q});
+    db().J_1BNFLIN.push({DOCNUM:doc,ITMNUM:pad((i+1)*10,6),MATNR:x.MATNR,MAKTX:x.m.MAKTX,NBM:x.m.STEUC,CFOP:cfop,MENGE:x.q,MEINS:'CX',NETPR:x.p,NETWR:x.net,ICMS:x.icms,IPI:x.ipi,REFKEY:bill});
+  });
+  l.FKSTK='C';
+  db().J_1BNFDOC.push({DOCNUM:doc,MODEL:'55',SERIES:'001',NFENUM:pad(nfn,9),DOCDAT:TODAY,PARID:k.KUNNR,CFOP:cfop,NFNET:c.net,ICMSR:c.ir,ICMS:c.icms,IPI:c.ipi,NFTOT:c.total,REFKEY:bill,BELNR:fi,ACCKEY:nfKey(nfn,(nfn*7919+31)%1e8),DOCSTA:'',CODE:'',AUTHCOD:'',AUTHDATE:''});
+  db().BKPF.push({BUKRS:'BR01',BELNR:fi,GJAHR:NOW.getFullYear(),BLART:'RV',BUDAT:TODAY,XBLNR:pad(nfn,9)+'-001',AWKEY:bill});
+  [['01',k.KUNNR,`Cliente ${k.NAME1.split(' ').slice(0,3).join(' ')}`,c.total,'S'],['50','3110001','Receita bruta de vendas',c.net,'H'],['50','2130002','IPI a recolher',c.ipi,'H'],['40','3120001','ICMS sobre vendas',c.icms,'S'],['50','2130001','ICMS a recolher',c.icms,'H']]
+    .forEach(([bs,ko,tx,v,sh],i)=>db().BSEG.push({BELNR:fi,BUZEI:pad(i+1,3),BSCHL:bs,KONTO:ko,TXT:tx,DMBTR:v,SHKZG:sh}));
+  persist();
+  D.vf01={VBELN:'',FKART:'F2',preview:false};D.nfSel=doc;
+  go('J1BNFE');msg('s',`Documento ${bill} gravado · NF-e ${pad(nfn,9)} enviada à SEFAZ`);
+  authorize(doc,1900);
+}
+function authorize(doc,delay){
+  setTimeout(()=>{
+    const n=db().J_1BNFDOC.find(x=>x.DOCNUM===doc);if(!n||n.CODE==='100')return;
+    n.DOCSTA='1';n.CODE='100';n.AUTHCOD='135'+String(NOW.getFullYear()).slice(2)+pad((+n.NFENUM*104729)%1e10,10);n.AUTHDATE=`${TODAY} ${hhmm()}`;
+    persist();
+    if(D.route==='J1BNFE')render();
+    if(delay){msg('s',`NF-e ${n.NFENUM} autorizada para uso · Protocolo ${n.AUTHCOD}`);mentor('nfe_auth',{cfop:n.CFOP})}
+  },delay);
+}
+
+/* ---------- Rotas e comando ---------- */
+const R={
+  home:{title:'SAP Easy Access',render:rHome},
+  VA01:{title:'Criar ordem de cliente: tela inicial',render:rVA01,enter:va01Enter},
+  VA01_2:{title:'Criar Ordem padrão: síntese',render:rVA01b,enter:()=>va01Check(),save:va01Save,back:()=>go('VA01')},
+  VL01N:{title:'Criar fornecimento de saída c/ref. a ordem cliente',render:rVL01,enter:vl01Enter},
+  VL01N_2:{title:'Fornecimento de saída Criar: síntese',render:rVL01b,enter:()=>vl01Check(),save:()=>msg('w','Neste cenário, use "Registrar saída de mercadoria" para gravar a remessa com a baixa de estoque'),back:()=>go('VL01N'),pgi},
+  VF01:{title:'Criar documento de faturamento',render:rVF01,enter:vf01Enter,save:vf01Save},
+  J1BNFE:{title:'Monitor NF-e',render:rNFe,enter:()=>render()},
+  SE16N:{title:'Navegador geral de tabelas',render:rSE16,enter:()=>render()}
+};
+const GRP={VA01_2:'VA01',VL01N_2:'VL01N'};
+function go(route){
+  if(route==='VL01N_2'&&!D.vl01b)route='VL01N';
+  if(D.result&&D.result.route!==route)D.result=null;
+  D.confirmReset=false;D.route=route;closeSug();render();
+  window.scrollTo(0,0);
+  const k=TIP_FOR[route];if(k&&!(route==='home'&&isC()))mentor(k);
+}
+function runCommand(raw){
+  let c=up(raw);
+  if(!c)return R[D.route].enter?.();
+  if(/^\/[NO]/.test(c))c=c.slice(2);
+  else if(c.startsWith('/'))return msg('e',`Função ${c} não é possível`);
+  if(c===''||c==='SMEN'||c==='S000'){clearMsg();return go('home')}
+  const map={VA01:'VA01',VL01N:'VL01N',VF01:'VF01',J1BNFE:'J1BNFE',SE16N:'SE16N',SE16:'SE16N'};
+  if(map[c]){clearMsg();return go(map[c])}
+  if(['VA02','VA03','VA05','VL02N','VL03N','VF02','VF03','VF04','F-28','FBL5N','MMBE','MD04','VK11','VK13','XD01','XD03','MM01','MM03','VD03','CO09'].includes(c))return msg('w',`A transação ${c} existe no SAP, mas não faz parte deste cenário`);
+  msg('e',`Transação ${c} não existe`);
+}
+
+/* ---------- Chrome ---------- */
+const DOCB='<path d="M3 1.5h7l3 3v10H3z" fill="#fff" stroke="#6A7B8C"/>';
+const FOLD='<path d="M1 3.5h5l1.5 1.5H15v9H1z" fill="#F2C94C" stroke="#A8800F"/>';
+const STAR='<path d="M7 1.5l1.7 3.4 3.8.6-2.7 2.6.6 3.8L7 10.1l-3.4 1.8.6-3.8L1.5 5.5l3.8-.6z" fill="#F2C200" stroke="#A88400" stroke-width=".8"/>';
+const BINO='<rect x="3" y="3" width="3" height="5" fill="#2C3E50"/><rect x="10" y="3" width="3" height="5" fill="#2C3E50"/><rect x="5.5" y="6" width="5" height="2" fill="#2C3E50"/><circle cx="4.5" cy="10.5" r="3" fill="#4A6C8F" stroke="#1E2B38"/><circle cx="11.5" cy="10.5" r="3" fill="#4A6C8F" stroke="#1E2B38"/>';
+const PG=d=>DOCB+`<path d="${d}" stroke="#2F5F9E" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+const BOX='<rect x="2" y="2" width="12" height="12" fill="#fff" stroke="#4A5664"/>';
+const SV={
+  win:'<rect x="1.5" y="2.5" width="13" height="11" fill="#fff" stroke="#3A6EA5"/><rect x="1.5" y="2.5" width="13" height="3" fill="#3A6EA5"/>',
+  enter:'<path d="M2.5 8.6l3.6 3.6L13.6 4" stroke="#178A1E" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  dd:'<path d="M4 6h8l-4 5z" fill="#24405E"/>',
+  coll:'<path d="M10.5 3.5L5 8l5.5 4.5z" fill="#4A6C8F"/>',
+  save:'<path d="M2 2h10.5L14 3.5V14H2z" fill="#2F5F9E" stroke="#1B3C66"/><rect x="4.5" y="2.5" width="6" height="4" fill="#fff"/><rect x="9" y="3" width="1.2" height="3" fill="#2F5F9E"/><rect x="4" y="9" width="8" height="4.5" fill="#E8EEF5"/>',
+  back:'<circle cx="8" cy="8" r="6.5" fill="#2E9A3A" stroke="#1C6B26"/><path d="M9.8 4.6L6.2 8l3.6 3.4z" fill="#fff"/>',
+  exit:'<circle cx="8" cy="8" r="6.5" fill="#F2B600" stroke="#A67C00"/><path d="M4.6 9.8L8 6.2l3.4 3.6z" fill="#fff"/>',
+  cancel:'<circle cx="8" cy="8" r="6.5" fill="#D9302C" stroke="#962020"/><path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>',
+  print:'<rect x="4" y="1.5" width="8" height="4.5" fill="#fff" stroke="#556"/><rect x="1.5" y="5.5" width="13" height="6" rx="1" fill="#8A97A6" stroke="#4A5664"/><rect x="4" y="9.5" width="8" height="5" fill="#fff" stroke="#556"/>',
+  find:BINO,
+  findn:BINO+'<path d="M13.5 .5v4M11.5 2.5h4" stroke="#178A1E" stroke-width="1.6"/>',
+  pfirst:PG('M5.5 7.5L8 5l2.5 2.5M5.5 11L8 8.5l2.5 2.5'),
+  pprev:PG('M5.5 9.5L8 7l2.5 2.5'),
+  pnext:PG('M5.5 7L8 9.5 10.5 7'),
+  plast:PG('M5.5 5L8 7.5 10.5 5M5.5 8.5L8 11l2.5-2.5'),
+  newwin:'<rect x="1.5" y="3" width="11" height="9" fill="#fff" stroke="#4A6C8F"/><rect x="1.5" y="3" width="11" height="2.5" fill="#4A6C8F"/><path d="M12.5 9v6M9.5 12h6" stroke="#D99A00" stroke-width="2"/>',
+  short:'<rect x="1.5" y="2" width="13" height="9" rx="1" fill="#DDE8F3" stroke="#4A5664"/><path d="M5.5 9l4-4M6.5 5h3v3" stroke="#1E7B2E" stroke-width="1.6" fill="none"/><rect x="5" y="12" width="6" height="2" fill="#4A5664"/>',
+  help:'<circle cx="8" cy="8" r="6.5" fill="#F5C400" stroke="#A88400"/><path d="M6 6.2c0-1.3.9-2.1 2.1-2.1S10.2 4.9 10.2 6c0 1.6-2.1 1.6-2.1 3.3" stroke="#3A2C00" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="8.1" cy="11.6" r="1" fill="#3A2C00"/>',
+  layout:'<rect x="1.5" y="2" width="13" height="9" fill="#fff" stroke="#4A5664"/><rect x="3" y="3.5" width="4" height="3" fill="#E04B4B"/><rect x="8" y="3.5" width="5" height="3" fill="#3C7FD0"/><rect x="3" y="7.5" width="10" height="2" fill="#3EAA4E"/><rect x="5" y="12" width="6" height="2" fill="#4A5664"/>',
+  umenu:FOLD+'<circle cx="8" cy="8" r="1.8" fill="#2F5F9E"/><path d="M5 13.5c0-2 1.4-3 3-3s3 1 3 3z" fill="#2F5F9E"/>',
+  smenu:FOLD+'<rect x="5.5" y="7" width="5" height="5" fill="#2F5F9E"/>',
+  fav:FOLD+'<path d="M8 6.5l1 2 2.2.3-1.6 1.5.4 2.2L8 11.4l-2 1.1.4-2.2-1.6-1.5 2.2-.3z" fill="#D9302C"/>',
+  omenu:BOX+'<path d="M4 5h8M4 8h8M4 11h6" stroke="#2F5F9E" stroke-width="1.4"/>',
+  favadd:STAR+'<path d="M12.5 9v6M9.5 12h6" stroke="#178A1E" stroke-width="2"/>',
+  favchg:STAR+'<path d="M9 15l1-3 4-4 2 2-4 4z" fill="#3C7FD0" stroke="#1B3C66" stroke-width=".7"/>',
+  favdel:STAR+'<path d="M10 10l5 5M15 10l-5 5" stroke="#D9302C" stroke-width="2"/>',
+  down:'<path d="M3 5h10L8 11z" fill="#2B2B2B"/>',
+  up:'<path d="M3 11h10L8 5z" fill="#2B2B2B"/>',
+  role:DOCB+'<path d="M8 6l1 2 2.2.3-1.6 1.5.4 2.2L8 10.9l-2 1.1.4-2.2-1.6-1.5 2.2-.3z" fill="#F2C200" stroke="#A88400" stroke-width=".6"/>',
+  users:'<circle cx="5.5" cy="5" r="2.3" fill="#3C7FD0"/><path d="M1.5 13c0-3 1.8-4.5 4-4.5s4 1.5 4 4.5z" fill="#3C7FD0"/><circle cx="11" cy="6" r="2" fill="#5FA05F"/><path d="M8 13.5c.2-2.6 1.3-3.8 3-3.8s2.8 1.2 3 3.8z" fill="#5FA05F"/>',
+  book:'<path d="M2 3h5.5v11H2zM8.5 3H14v11H8.5z" fill="#fff" stroke="#2F5F9E"/><path d="M3.5 6h2.5M3.5 8.5h2.5M10 6h2.5M10 8.5h2.5" stroke="#8FA3B8"/>',
+  doc:DOCB+'<path d="M5 7h6M5 9.5h6M5 12h4" stroke="#8FA3B8"/>',
+  hdr:BOX+'<rect x="2" y="2" width="12" height="4" fill="#3C7FD0"/>',
+  items:BOX+'<path d="M2 6h12M2 10h12M6 2v12" stroke="#7C8C9C"/>',
+  part:'<circle cx="8" cy="5" r="2.8" fill="#3C7FD0"/><path d="M3 14c0-3.5 2.2-5 5-5s5 1.5 5 5z" fill="#3C7FD0"/>',
+  chk:BOX+'<path d="M4.5 8.2l2.3 2.3 4.7-5" stroke="#178A1E" stroke-width="2" fill="none"/>',
+  price:'<ellipse cx="8" cy="11.5" rx="5.5" ry="2" fill="#E2B33C" stroke="#9A7612"/><ellipse cx="8" cy="8.5" rx="5.5" ry="2" fill="#E2B33C" stroke="#9A7612"/><ellipse cx="8" cy="5.5" rx="5.5" ry="2" fill="#F2CA55" stroke="#9A7612"/>',
+  truck:'<rect x="1" y="4" width="9" height="7" fill="#3C7FD0" stroke="#1B3C66"/><path d="M10 6.5h3l2 2.5V11h-5z" fill="#8FB3DA" stroke="#1B3C66"/><circle cx="4" cy="12" r="1.6" fill="#333"/><circle cx="12" cy="12" r="1.6" fill="#333"/>',
+  exec:'<circle cx="7" cy="7.5" r="6" fill="#fff" stroke="#4A5664"/><path d="M7 4v3.8h3" stroke="#4A5664" stroke-width="1.4" fill="none"/><path d="M9 12.3l2 2 4-4.5" stroke="#178A1E" stroke-width="2" fill="none"/>',
+  tfold:'<path d="M1 3.5h5l1.5 1.5H15v8.5H1z" fill="#F7D35C" stroke="#B88A12"/><path d="M1 6h14" stroke="#E4B732"/>',
+  tfav:'<path d="M1 3.5h5l1.5 1.5H15v8.5H1z" fill="#F7D35C" stroke="#B88A12"/><path d="M8 6.5l1 2 2.2.3-1.6 1.5.4 2.2L8 11.4l-2 1.1.4-2.2-1.6-1.5 2.2-.3z" fill="#D9302C"/>',
+  tx:'<path d="M8 1.8l5.5 2.7v6.8L8 14.2l-5.5-2.9V4.5z" fill="#A9C6E6" stroke="#2F5F9E"/><path d="M2.5 4.5L8 7.3l5.5-2.8M8 7.3v6.9" stroke="#2F5F9E" fill="none"/>'
+};
+const svg=k=>`<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">${SV[k]}</svg>`;
+const MENUS={home:['Menu','Processar','Favoritos','Suplementos','Sistema','Ajuda'],VA01:['Ordem de venda','Processar','Avançar','Ambiente','Sistema','Ajuda'],VL01N:['Fornecimento de saída','Processar','Avançar','Ambiente','Sistema','Ajuda'],VF01:['Documento de faturamento','Processar','Avançar','Ambiente','Sistema','Ajuda'],J1BNFE:['Nota fiscal','Processar','Avançar','Ambiente','Sistema','Ajuda'],SE16N:['Tabela','Processar','Avançar','Configurações','Sistema','Ajuda']};
+const APPTB={
+  home:[['umenu','Menu do usuário','na'],['smenu','Menu SAP','na'],0,['fav','Favoritos','na'],['omenu','Outro menu','na','Outro menu'],0,['favadd','Inserir nos favoritos','na'],['favchg','Modificar favoritos','na'],['favdel','Eliminar favoritos','na'],0,['down','Expandir subárvore','na'],['up','Comprimir subárvore','na'],0,['role','Criar função','na','Criar função'],['users','Atribuir usuários','','Atribuir usuários',1],['book','Documentação','','Documentação',1]],
+  VA01:[['doc','Criar com referência','na','Criar c/referência'],0,['hdr','Vendas','enter','Vendas'],['items','Síntese de itens','enter','Síntese de itens'],['doc','Detalhe de item','','Detalhe de item',1],['part','Encomendante','','Encomendante',1]],
+  VA01_2:[['items','Inserir item','additem','Inserir item'],['chk','Verificar','enter','Verificar'],0,['hdr','Cabeçalho','na','Cabeçalho'],['price','Condições','enter','Condições']],
+  VL01N:[['doc','Criar sem referência à ordem','','Sem referência à ordem',1]],
+  VL01N_2:[['truck','Registrar saída de mercadoria','pgi','Registrar SM'],['chk','Verificar','enter','Verificar'],0,['items','Picking','enter','Picking']],
+  VF01:[['items','Síntese de documentos de faturamento','enter','Síntese doc.faturamento'],['omenu','Lista de seleção','','Lista de seleção',1]],
+  J1BNFE:[['exec','Atualizar','enter','Atualizar']],
+  SE16N:[['exec','Executar (F8)','enter','Executar']]
+};
+function chromeApp(){
+  const g=GRP[D.route]||D.route;
+  const tabs=[['home','Início'],['VA01','VA01'],['VL01N','VL01N'],['VF01','VF01'],['J1BNFE','NF-e'],['SE16N','SE16N']];
+  return `<header class="top"><div class="brand"><span class="logo">SD</span><div><b>SAPTutor SD</b><small>Venda padrão · Cenário Brasil</small></div></div>
+  <div class="top-r"><div class="seg" role="group" aria-label="Modo de tela"><button data-act="mode" data-mode="app" aria-pressed="true">App</button><button data-act="mode" data-mode="classic" aria-pressed="false">Clássico</button></div><button class="ic" data-act="mentor" aria-label="Mostrar a dica do mentor para esta tela">?</button></div></header>
+  <nav class="tabs" aria-label="Transações">${tabs.map(([r,l])=>`<button data-act="go" data-to="${r}" class="${g===r?'on':''}" ${g===r?'aria-current="page"':''}>${l}</button>`).join('')}</nav>`;
+}
+function chromeClassic(r){
+  const k=D.route,g=GRP[k]||k,canSave=!!R[k].save;
+  const b=(ic,t,act,dis)=>`<button class="sb" ${act&&!dis?`data-act="${act}"`:''} title="${t}" aria-label="${t}" ${dis?'disabled':''}>${svg(ic)}</button>`;
+  const a=x=>x===0?'<span class="sep"></span>':`<button class="sa" ${x[2]&&!x[4]?`data-act="${x[2]}"`:''} title="${x[1]}" ${x[3]?'':`aria-label="${x[1]}"`} ${x[4]?'disabled':''}>${svg(x[0])}${x[3]?`<span>${x[3]}</span>`:''}</button>`;
+  const menus=(MENUS[g]||MENUS.home).map(m=>`<span><u>${m[0]}</u>${m.slice(1)}</span>`).join('');
+  return `<div class="sg">
+  <div class="sg-menu"><span class="wi" aria-hidden="true">${svg('win')}</span>${menus}<div class="r"><button class="sg-mode" data-act="mode" data-mode="app" title="Voltar para a interface amigável">Modo App</button><span class="wc" aria-hidden="true"><i>_</i><i>□</i><i>×</i></span></div></div>
+  <div class="sg-tool">${b('enter','Enter','enter')}<div class="cmd"><input id="okcode" aria-label="Campo de comando" autocomplete="off" spellcheck="false"><span class="dd" aria-hidden="true">${svg('dd')}</span></div>${b('coll','Ocultar campo de comando','na')}${b('save','Gravar (Ctrl+S)','save',!canSave)}<span class="sep"></span>${b('back','Voltar (F3)','back')}${b('exit','Encerrar (Shift+F3)','home')}${b('cancel','Cancelar (F12)','back')}<span class="sep"></span>${b('print','Imprimir (Ctrl+P)','na',true)}${b('find','Procurar (Ctrl+F)','na',k!=='SE16N')}${b('findn','Continuar procura','na',true)}<span class="sep"></span>${b('pfirst','Primeira página','na',true)}${b('pprev','Página anterior','na',true)}${b('pnext','Página seguinte','na',true)}${b('plast','Última página','na',true)}<span class="sep"></span>${b('newwin','Criar nova sessão','na')}${b('short','Criar atalho no desktop','na')}<span class="sep"></span>${b('help','Ajuda: mentor (F1)','mentor')}${b('layout','Configurar layout local (Alt+F12)','na')}</div>
+  <div class="sg-title"><h1>${r.title}</h1></div>
+  <div class="sg-app">${(APPTB[k]||[]).map(a).join('')}</div></div>`;
+}
+function render(){
+  closeSug();
+  document.documentElement.classList.toggle('is-classic',isC());
+  const r=R[D.route];
+  $('#chrome').innerHTML=isC()?chromeClassic(r):chromeApp(r);
+  $('#screen').innerHTML=r.render();
+  renderStatus();showMentor();
+}
+
+/* ---------- Auto-completar ---------- */
+let SG=null;
+function openSug(el,all){
+  closeSug();
+  const t=el.dataset.suggest,v=up(el.value);let list=SRC[t]();
+  if(!all&&v){if(list.some(o=>o.k===v))return;list=list.filter(o=>o.k.startsWith(v)||o.t.toUpperCase().includes(v))}
+  if(!list.length)return;
+  list=list.slice(0,6);
+  const ul=document.createElement('ul');ul.className='sug';ul.setAttribute('role','listbox');
+  ul.innerHTML=(SRC_H[t]?`<li class="sug-h" aria-hidden="true">${SRC_H[t]}</li>`:'')+list.map((o,i)=>`<li role="option" data-i="${i}"><b>${e(o.k)}</b><span>${e(o.t)}</span>${o.s?`<small>${e(o.s)}</small>`:''}</li>`).join('');
+  document.body.appendChild(ul);
+  const rc=el.getBoundingClientRect(),w=Math.min(Math.max(rc.width,280),window.innerWidth-24);
+  ul.style.width=w+'px';ul.style.left=Math.max(12,Math.min(rc.left,window.innerWidth-w-12))+'px';
+  const below=window.innerHeight-rc.bottom;
+  if(below<200&&rc.top>below){ul.style.bottom=(window.innerHeight-rc.top+4)+'px'}else{ul.style.top=(rc.bottom+4)+'px'}
+  SG={el,list,i:-1,ul};
+}
+function closeSug(){if(SG){SG.ul.remove();SG=null}}
+function pickSug(i){if(!SG)return;const {el,list}=SG;el.value=list[i].k;closeSug();el.dispatchEvent(new Event('input',{bubbles:true}));closeSug()}
+function moveSug(d){if(!SG)return;SG.i=(SG.i+d+SG.list.length)%SG.list.length;SG.ul.querySelectorAll('li[role=option]').forEach((li,i)=>li.classList.toggle('act',i===SG.i))}
+
+/* ---------- Eventos ---------- */
+const ACT={
+  go:b=>{clearMsg();go(b.dataset.to)},
+  enter:()=>{const ok=$('#okcode');if(ok&&ok.value.trim())return runCommand(ok.value);R[D.route].enter?.()},
+  save:()=>R[D.route].save?R[D.route].save():msg('w','Gravar não é possível nesta tela'),
+  back:()=>{clearMsg();R[D.route].back?R[D.route].back():go('home')},
+  home:()=>{clearMsg();go('home')},
+  mode:b=>{if(S.mode===b.dataset.mode)return;S.mode=b.dataset.mode;persist();render();if(isC())mentor('classic_first')},
+  additem:()=>{if(D.route!=='VA01_2')return;D.va01b.items.push({MATNR:'',KWMENG:'',WERKS:'BR01'});render()},
+  delitem:b=>{D.va01b.items.splice(+b.dataset.i,1);render()},
+  pgi:()=>{if(D.route==='VL01N_2')pgi()},
+  mentor:()=>{const k=isC()&&D.route==='home'?'classic_first':TIP_FOR[D.route]||'home';mentor(k,{},true)},
+  closementor:()=>{MENTOR=null;showMentor()},
+  na:b=>msg('w',`Função "${b.getAttribute('title')}" não está disponível no simulador`),
+  nfsel:b=>{D.nfSel=b.dataset.doc;render()},
+  copykey:()=>{const t=$('#nfkey').textContent.replace(/\s/g,'');const sel=()=>{const r=document.createRange();r.selectNodeContents($('#nfkey'));const s=getSelection();s.removeAllRanges();s.addRange(r)};
+    try{navigator.clipboard.writeText(t).then(()=>msg('s','Chave de acesso copiada'),()=>{sel();msg('i','Chave selecionada. Use Ctrl+C para copiar')})}catch(_){sel();msg('i','Chave selecionada. Use Ctrl+C para copiar')}},
+  reset:()=>{if(!D.confirmReset){D.confirmReset=true;render();setTimeout(()=>{if(D.confirmReset){D.confirmReset=false;if(D.route==='home')render()}},5000);return}
+    const keep={name:S.name,mode:S.mode};S=seed();S.name=keep.name;S.mode=keep.mode;persist();
+    D.va01b=freshVA01b();D.vl01b=null;D.vl01.VBELN='';D.vf01={VBELN:'',FKART:'F2',preview:false};D.result=null;D.confirmReset=false;MENTOR=null;
+    go('home');msg('s','Dados mestres restaurados: estoque FERT-900 de volta a 200 CX')}
+};
+document.addEventListener('mousedown',ev=>{if(ev.target.closest('.sug'))ev.preventDefault()});
+document.addEventListener('click',ev=>{
+  const li=ev.target.closest('.sug li[role=option]');if(li){pickSug(+li.dataset.i);return}
+  const b=ev.target.closest('[data-act]');if(!b)return;
+  ACT[b.dataset.act]?.(b);
+});
+document.addEventListener('input',ev=>{
+  const el=ev.target;if(!el.dataset||!el.dataset.bind)return;
+  el.classList.remove('bad');
+  setPath(el.dataset.bind,el.value);
+  if(el.dataset.bind==='se16.tab'){render();return}
+  if(el.dataset.bind.startsWith('vf01'))D.vf01.preview=false;
+  if(el.dataset.suggest){const d=document.getElementById(el.id+'-d');if(d)d.textContent=descOf(el.dataset.suggest,el.value);if(document.activeElement===el)openSug(el,!el.value)}
+  if(D.route==='VA01_2')updatePricing();
+});
+document.addEventListener('focusin',ev=>{const el=ev.target;if(el.dataset&&el.dataset.suggest)openSug(el,!el.value||!!SRC_H[el.dataset.suggest])});
+document.addEventListener('focusout',ev=>{if(SG&&ev.target===SG.el)setTimeout(()=>{if(SG&&document.activeElement!==SG.el)closeSug()},150)});
+window.addEventListener('resize',closeSug);
+window.addEventListener('scroll',()=>{if(SG&&!SG.ul.matches(':hover'))closeSug()},{passive:true});
+document.addEventListener('keydown',ev=>{
+  const el=ev.target;
+  if(SG&&el===SG.el){
+    if(ev.key==='ArrowDown'){ev.preventDefault();return moveSug(1)}
+    if(ev.key==='ArrowUp'){ev.preventDefault();return moveSug(-1)}
+    if(ev.key==='Escape'){return closeSug()}
+    if(ev.key==='Enter'&&SG.i>=0){ev.preventDefault();return pickSug(SG.i)}
+  }
+  if(ev.key==='F4'&&el.dataset&&el.dataset.suggest){ev.preventDefault();return openSug(el,true)}
+  if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='s'){ev.preventDefault();closeSug();return ACT.save()}
+  if(ev.key==='F3'){ev.preventDefault();return ev.shiftKey?ACT.home():ACT.back()}
+  if(ev.key==='F12'){ev.preventDefault();return ACT.back()}
+  if(ev.key==='F8'){ev.preventDefault();return R[D.route].enter?.()}
+  if(ev.key==='F1'){ev.preventDefault();return ACT.mentor()}
+  if(ev.key==='Enter'&&el.id==='okcode'){ev.preventDefault();const v=el.value;el.value='';return runCommand(v)}
+  if(ev.key==='Enter'&&el.tagName==='INPUT'&&el.dataset.bind&&el.dataset.bind!=='name'){ev.preventDefault();closeSug();R[D.route].enter?.()}
+});
+
+/* ---------- Início ---------- */
+render();
+db().J_1BNFDOC.filter(n=>n.CODE!=='100').forEach(n=>authorize(n.DOCNUM,0));
+mentor(isC()?'classic_first':'home');
+})();
+</script>
+
+</body>
+</html>
