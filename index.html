@@ -4,39 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Simulador educacional do ciclo Order-to-Cash do SAP SD: VA01, VL01N, VF01 e NF-e.">
-<style>html,body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style><title>SAPTutor SD</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>html,body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>SAPTutor SD</title>
 <style>
 /* Layout: site web responsivo (até 1180px; duas colunas no desktop, uma no celular). Modo Clássico imita o SAP GUI. Barra de status e mentor fixos no rodapé. */
 :root{
-  --bg:#EDF1F3; --surface:#FFFFFF; --sunk:#F4F7F8; --fg:#132029; --muted:#55666F; --line:#D0D9DE;
-  --accent:#0A6680; --accent-ink:#FFFFFF; --accent-soft:#DCEDF2;
-  --mentor:#B9740F; --mentor-soft:#FFF3DE;
-  --ok:#1D7544; --ok-soft:#E1F3E7; --err:#B42318; --err-soft:#FDE7E5; --warn:#7F5300; --warn-soft:#FFF1D0; --info:#245C9E; --info-soft:#E3EDF9;
-  --display:"Barlow Semi Condensed","Arial Narrow",Arial,sans-serif;
-  --body:"Barlow","Segoe UI",system-ui,sans-serif;
-  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  /* SAP Fiori · tema Quartz Light (tema único e claro, como no SAP) */
+  --bg:#F5F6F7; --surface:#FFFFFF; --sunk:#F7F7F7; --fg:#32363A; --muted:#6A6D70; --line:#D9D9D9; --field:#89919A;
+  --accent:#0A6ED1; --accent-ink:#FFFFFF; --accent-soft:#E5F0FA; --accent-dark:#0854A0; --shell:#354A5F;
+  --mentor:#5B3FD9; --mentor-soft:#F1EEFF;
+  --ok:#107E3E; --ok-soft:#F1FDF6; --err:#BB0000; --err-soft:#FFEBEB; --warn:#B95000; --warn-soft:#FEF7F1; --info:#0A6ED1; --info-soft:#F5FAFF;
+  --display:"72","72full",Arial,Helvetica,sans-serif;
+  --body:"72","72full",Arial,Helvetica,sans-serif;
+  --mono:"72","72full",Arial,Helvetica,sans-serif;
+  --code:Consolas,"Lucida Console",monospace;
   --gui:Tahoma,Arial,"Segoe UI",sans-serif;
-  /* Modo Clássico: paleta fixa do SAP GUI (tema Signature), igual em qualquer tema */
+  --r:4px;
+  /* Modo SAP GUI: paleta fixa do tema Signature */
   --g-shell:#DFE8F1; --g-bar:#E4ECF4; --g-panel:#E9F0F7; --g-field:#FFFFFF; --g-border:#7F9DB9; --g-title:#0E2A55; --g-text:#000000; --g-hdr:#DCE5EF; --g-focus:#F0AB00; --g-link:#0B5394;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#0D1418; --surface:#152027; --sunk:#10191F; --fg:#E2E9ED; --muted:#93A3AD; --line:#2A3943;
-    --accent:#4FB5D2; --accent-ink:#03212A; --accent-soft:#12323D;
-    --mentor:#F0B04A; --mentor-soft:#33270F;
-    --ok:#5ACB8B; --ok-soft:#12301F; --err:#FF8B7E; --err-soft:#3D1814; --warn:#F2C25C; --warn-soft:#3A2C0C; --info:#8BB8F0; --info-soft:#152A44;
-    color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#0D1418; --surface:#152027; --sunk:#10191F; --fg:#E2E9ED; --muted:#93A3AD; --line:#2A3943;
-  --accent:#4FB5D2; --accent-ink:#03212A; --accent-soft:#12323D;
-  --mentor:#F0B04A; --mentor-soft:#33270F;
-  --ok:#5ACB8B; --ok-soft:#12301F; --err:#FF8B7E; --err-soft:#3D1814; --warn:#F2C25C; --warn-soft:#3A2C0C; --info:#8BB8F0; --info-soft:#152A44;
-  color-scheme:dark;
+  color-scheme:light;
 }
 :root.is-classic{color-scheme:light}
 
@@ -254,6 +240,108 @@ table.grid .r{text-align:right}
 .pulse{position:relative;z-index:1;box-shadow:0 0 0 3px var(--mentor-soft),0 0 0 5px var(--mentor)!important;animation:pulse 1.3s ease-in-out 3}
 @keyframes pulse{50%{box-shadow:0 0 0 3px var(--mentor-soft),0 0 0 9px transparent}}
 
+/* Monitor NF-e: grade ALV (visual fixo do SAP) */
+.nfh{display:flex;flex-wrap:wrap;gap:8px 22px;align-items:center;padding:10px 12px;background:#fff;border:1px solid #D0D7DE;border-radius:2px;font:12px/1.2 Arial,var(--gui);color:#32363A}
+.nfc{display:flex;align-items:center;gap:6px}
+.nfc>span{color:#556270}
+.nfc output{min-width:44px;padding:3px 6px;border:1px solid #BFC7CF;background:#F7F9FB;font-variant-numeric:tabular-nums;color:#000}
+.nfsrv{margin-left:auto;display:flex;align-items:center;gap:6px;color:#556270}
+.alv{border:1px solid #BFC7CF;background:#fff;font:12px/1.2 Arial,var(--gui);color:#000;min-width:0}
+.alv-tb{display:flex;align-items:center;gap:1px;padding:3px 4px;background:linear-gradient(#F7F9FB,#E6ECF2);border-bottom:1px solid #BFC7CF;overflow-x:auto;scrollbar-width:none}
+.ab{height:23px;min-width:24px;border:1px solid transparent;background:none;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:0 4px;font:12px Arial,var(--gui);color:#000;flex:none;cursor:pointer}
+.ab:hover{border-color:#7F9DB9;background:#fff}
+.alv-g{overflow:auto;max-height:360px}
+.alv table{border-collapse:collapse;width:max-content;min-width:100%}
+.alv th{position:sticky;top:0;z-index:1;background:#EEF2F6;border-right:1px solid #D0D7DE;border-bottom:1px solid #BFC7CF;padding:4px 6px;font-weight:normal;text-align:left;white-space:nowrap;color:#1F2D3A}
+.alv td{padding:2px 6px;height:22px;border-right:1px solid #E3E8ED;border-bottom:1px solid #E3E8ED;white-space:nowrap;font-variant-numeric:tabular-nums}
+.alv tbody tr[data-act]{cursor:pointer}
+.alv tbody tr:nth-child(even) td{background:#F5F8FB}
+.alv tbody tr[data-act]:hover td{background:#EAF2FB}
+.alv tbody tr.on td{background:#CFE2F6}
+.alv tr.none td{color:#556270;padding:14px 10px;white-space:normal}
+.alv .c{text-align:center}
+.alv .r{text-align:right}
+.alv td input[type=checkbox]{margin:0;width:13px;height:13px;vertical-align:middle}
+.alv td svg{display:block;margin:auto}
+.ib{border:0;background:none;padding:0;display:grid;place-items:center;margin:auto;cursor:pointer}
+.hist-t{font:bold 12px Arial,var(--gui);padding:6px 8px;background:#EEF2F6;border-bottom:1px solid #BFC7CF}
+.nfkey{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:8px 10px;border-top:1px solid #D0D7DE}
+.nfkey b{font-weight:normal;color:#556270}
+.nfkey #nfkey{font-variant-numeric:tabular-nums;word-spacing:2px}
+/* ---------- SAP Fiori (Quartz Light) ---------- */
+body{font-size:14px;overflow-x:clip}
+code{font-family:var(--code)}
+.top{margin-inline:calc(50% - 50vw);padding-block:0;padding-inline:max(16px,calc(50vw - 590px));min-height:48px;background:var(--shell);color:#fff}
+.brand b{font:bold 16px/1.1 var(--body);color:#fff;letter-spacing:0}
+.brand small{color:#D1E8FF;font-size:12px}
+.logo{width:30px;height:30px;border-radius:4px;background:#fff;color:var(--shell);font:bold 13px/1 var(--body)}
+.top .seg{background:none;border:1px solid rgba(255,255,255,.5);border-radius:4px;padding:0;overflow:hidden}
+.top .seg button{border-radius:0;color:#fff;padding:6px 12px;font:13px var(--body)}
+.top .seg button[aria-pressed="true"]{background:#fff;color:var(--shell);box-shadow:none;font-weight:bold}
+.ic{border:0;background:transparent;color:#fff;border-radius:4px;width:36px;height:36px;font:bold 16px var(--body)}
+.ic:hover{background:rgba(255,255,255,.15)}
+.tabs{margin-inline:calc(50% - 50vw);padding-block:0;padding-inline:max(16px,calc(50vw - 590px));background:#fff;box-shadow:0 1px 0 #D9D9D9,0 2px 4px rgba(0,0,0,.05);gap:0;margin-bottom:18px}
+.tabs button{border:0;border-radius:0;background:none;padding:13px 14px 10px;font:14px var(--body);color:var(--fg);border-bottom:3px solid transparent}
+.tabs button:hover{color:var(--accent)}
+.tabs button.on{background:none;color:var(--accent);border-color:var(--accent);font-weight:bold}
+.tc{background:#F2F2F2;color:var(--muted);border:1px solid #D9D9D9;border-radius:2px;font:12px var(--code);letter-spacing:0}
+.scr-head h1{font:normal 24px/1.25 var(--body)}
+.scr-head p{font-size:14px}
+.panel{border:0;border-radius:4px;box-shadow:0 0 0 1px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.06)}
+.panel>legend,.sec-t{font:bold 14px var(--body);letter-spacing:0;text-transform:none;color:var(--fg)}
+fieldset.panel>legend{float:left;width:100%;margin:0;padding:0}
+.lab{font:14px var(--body);color:var(--muted)}
+.lab code{background:none;border:0;padding:0;color:#8C8C8C;font-size:11px}
+.f:has(.req) .lab>span::after{content:" *";color:var(--err)}
+.f input,.f select,.ctl input{height:36px;border:1px solid var(--field);border-radius:4px;padding:0 10px;font:14px var(--body);color:var(--fg)}
+.f input:hover,.ctl input:hover{border-color:var(--accent-dark)}
+.f input:focus,.ctl input:focus,.f select:focus{border-color:var(--accent-dark);box-shadow:none;outline:1px dotted #000;outline-offset:-4px}
+input.bad{border:2px solid var(--err)!important;background:var(--err-soft)!important;box-shadow:none!important}
+input[readonly]{background:#F7F7F7}
+output.val{font:14px/1.4 var(--body);padding:8px 0;border:0;background:none;border-radius:0}
+.desc,.help{font-size:13px}
+.btn{min-height:36px;padding:0 14px;border-radius:4px;border:1px solid var(--accent-dark);background:#fff;color:var(--accent-dark);font:14px var(--body)}
+.btn:hover{background:#EBF5FE}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:bold}
+.btn.pri:hover{background:var(--accent-dark)}
+.btn.sm{min-height:30px;font-size:13px}
+.btn.danger{color:var(--err);border-color:var(--err)}
+.lnk{font-weight:normal;color:var(--accent)}
+.item{background:#FAFAFA;border-color:#E5E5E5;border-radius:4px}
+.item-h .pos{font:bold 14px var(--body)}
+.ip{font-size:13px}
+.tot-main>div{background:#fff;border-color:#E5E5E5;border-radius:4px}
+.tot-main b{font:bold 20px/1.3 var(--body)}
+.eyebrow{font:bold 13px var(--body);letter-spacing:0;text-transform:none;color:var(--accent)}
+.hero h1{font:normal 32px/1.15 var(--body)}
+.step{border:0;border-radius:4px;box-shadow:0 0 0 1px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.06)}
+.step.cur{box-shadow:0 0 0 2px var(--accent)}
+.step .num{font:bold 15px/1 var(--body)}
+.step h3{font:bold 15px/1.3 var(--body)}
+.chip{border-radius:4px;font:bold 12px var(--body)}
+.res,.done-banner{border-radius:4px}
+.done-banner b{font:bold 18px/1.2 var(--body)}
+.res-n b{font:normal 28px/1 var(--body);letter-spacing:0}
+.stockline{font:14px/1.3 var(--body)}
+.status{border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.nf-status,.nfrow,.tbl-wrap,.flow span{border-radius:4px}
+.nf-status b{font:bold 16px/1.25 var(--body)}
+.key{font:14px/1.6 var(--body)}
+.tbl-wrap{border-color:#E5E5E5}
+table.grid{font:13px/1.35 var(--body)}
+table.grid th{font:bold 12px/1.2 var(--body);color:var(--muted);background:#F2F2F2}
+.danfe .dh strong{font:bold 22px/1 var(--body)}
+#mentor{border:0;border-radius:8px;box-shadow:0 0 0 1px rgba(0,0,0,.1),0 10px 30px rgba(0,0,0,.18)}
+.m-av{background:linear-gradient(135deg,#5B3FD9,#9B3FD6);color:#fff;font:bold 13px/1 var(--body)}
+.m-body small{font:bold 12px var(--body);letter-spacing:0;text-transform:none;color:var(--mentor)}
+.m-body p{font-size:14px}
+.m-act button{border:1px solid var(--mentor);background:#fff;color:var(--mentor);border-radius:4px;font:14px var(--body)}
+.sug{border-radius:4px}
+.sug li{border-radius:0}
+.sug li b{font:bold 14px/1.3 var(--body)}
+.sug li.act,.sug li:hover{background:#EBF5FE}
+.sug .sug-h{text-transform:none;letter-spacing:0;font-weight:bold}
+
 /* ================= Modo Clássico (SAP GUI) ================= */
 .is-classic body{background:var(--g-shell);color:var(--g-text);font:13px/1.4 var(--gui);padding-inline:0}
 .is-classic #app{max-width:none;padding-block:0 120px}
@@ -354,7 +442,16 @@ table.grid .r{text-align:right}
 .ea summary:hover,.ea li button:hover{background:#DCE7F2}
 .ea summary:focus-visible,.ea li button:focus-visible{outline:1px dotted #000;outline-offset:-1px;background:#C5D6E8}
 
-.is-classic #dock{padding:0}
+.tabs-s{display:flex;flex-wrap:wrap;gap:1px;padding-left:2px;border-bottom:1px solid #7F9DB9;margin-top:4px}
+.tabs-s button{border:1px solid #9FB1C4;border-bottom:0;background:linear-gradient(#F6F9FB,#D9E3ED);padding:4px 10px;font:12px var(--gui);color:#000;border-radius:3px 3px 0 0;position:relative;top:1px;cursor:pointer}
+.tabs-s button.on{background:var(--g-panel);border-color:#7F9DB9;font-weight:bold;z-index:1}
+.tabs-s button[data-act="na"]{color:#000}
+.tab-b{background:var(--g-panel);border:1px solid #7F9DB9;border-top:0;padding:10px 12px;display:grid;gap:8px;min-width:0}
+.frow{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:4px 24px}
+.tbl-title{font:bold 12px var(--gui);color:var(--g-title);margin-top:4px}
+.is-classic .help{display:none}
+.is-classic .tab-b .tbl-wrap{background:#fff}
+.is-classic .split{display:block}.is-classic #dock{padding:0}
 .is-classic .dock-in{max-width:none;gap:6px}
 .is-classic #mentor{margin:0 12px;width:auto;background:#FFFDF2;border:1px solid #C9A227;border-radius:3px;box-shadow:2px 4px 12px rgb(0 0 0 / .22);color:#000}
 .is-classic .m-av{background:#E8A400;color:#fff}
@@ -480,11 +577,11 @@ let S=load();
 if(!S.ui2){S.ui2=1;S.mode='classic';persist()}
 const freshVA01b=()=>({KUNNR:'',BSTKD:'PED-9982',items:[{MATNR:'',KWMENG:'',WERKS:'BR01'}]});
 let D={route:'home',result:null,confirmReset:false,nfSel:null,
-  va01:{AUART:'OR',VKORG:'BR01',VTWEG:'10',SPART:'01'},
+  va01:{AUART:'OR',VKORG:'BR01',VTWEG:'10',SPART:'01',VKBUR:'',VKGRP:''},tabs:{},
   va01b:freshVA01b(),
   vl01:{VSTEL:'BR01',LEDAT:TODAY,VBELN:''},vl01b:null,
   vf01:{VBELN:'',FKART:'F2',preview:false},
-  se16:{tab:'VBAK'}};
+  se16:{tab:'VBAK',run:false}};
 let MSG=null, MENTOR=null; const sessionSeen={};
 
 /* ---------- Consultas ---------- */
@@ -530,6 +627,7 @@ const SRC={
   lgort:()=>db().T001L.map(r=>({k:r.LGORT,t:r.LGOBE,s:`Centro ${r.WERKS}`})),
   vstel:()=>db().TVST.map(r=>({k:r.VSTEL,t:r.VTEXT})),
   fkart:()=>[{k:'F2',t:'Fatura'}],
+  tabela:()=>Object.keys(TDESC).map(k=>({k,t:TDESC[k]})),
   ordem:()=>openOrders().slice().reverse().map(o=>({k:o.VBELN,t:cust(o.KUNNR)?.NAME1||o.KUNNR,s:`Ordem ${o.AUART} de ${o.ERDAT} · Pedido ${o.BSTNK||'—'}`})),
   remessa:()=>billable().slice().reverse().map(l=>({k:l.VBELN,t:cust(l.KUNNR)?.NAME1||l.KUNNR,s:`Remessa com SM em ${l.WADAT_IST}`}))
 };
@@ -558,22 +656,22 @@ function markBad(sel){requestAnimationFrame(()=>{const el=document.querySelector
 const ctx=()=>{const c=cycle();return {n:S.name||'Aluno',order:openOrders().at(-1)?.VBELN||c.o?.VBELN||'14502',deliv:billable().at(-1)?.VBELN||c.l?.VBELN||'80012433'}};
 const TIPS={
   home:{t:v=>`Olá, ${v.n}! O ambiente já está parametrizado: cliente 1000234, material FERT-900, centro BR01 e depósito DEP1. Vamos fazer o ciclo completo, do pedido à nota fiscal autorizada. Comece pela VA01.`,hl:'.step.cur .btn'},
-  classic_first:{t:v=>`${v.n}, este é o modo clássico, igual ao SAP GUI. Digite /nVA01 no campo de comando, ao lado do visto verde, e tecle Enter. O menu em árvore leva às mesmas transações. O ícone amarelo de Ajuda (F1) chama o mentor, e o botão Modo App volta para a interface amigável.`,hl:'#okcode'},
+  classic_first:{t:v=>`${v.n}, este é o modo clássico, igual ao SAP GUI. Digite /nVA01 no campo de comando, ao lado do visto verde, e tecle Enter. O menu em árvore leva às mesmas transações. O ícone amarelo de Ajuda (F1) chama o mentor, e o botão SAP Fiori, no canto direito, mostra a interface moderna da SAP.`,hl:'#okcode'},
   va01_init:{t:v=>`${v.n}, aqui nós vamos abrir o canal de vendas. O código 'OR' já está inserido no Tipo de Ordem. Clique em Avançar para ver o que acontece.`,hl:'#f-va01-AUART, [data-act="enter"]'},
   va01_items:{t:v=>`Agora é o pedido em si. No Emissor da ordem, digite 100 e escolha o cliente sugerido. Depois informe o material FERT-900 com 50 caixas. O preço vem sozinho da condição PR00.`,hl:'#f-va01b-KUNNR'},
   va01_saved:{t:v=>`Ordem ${v.doc} gravada nas tabelas VBAK (cabeçalho) e VBAP (itens). O comercial terminou. Agora a logística assume: abra a VL01N.`,hl:'[data-to="VL01N"]'},
   vl01_init:{t:v=>`Na VL01N você cria a remessa a partir da ordem. O ponto de expedição BR01 é a doca da fábrica. Informe a ordem ${v.order} e avance.`,hl:'#f-vl01-VBELN'},
-  vl01_items:{t:v=>`O SAP copiou a quantidade da ordem para a remessa. Falta o picking: digite em Qtd. picking exatamente o que foi separado na prateleira e registre a saída de mercadoria.`,hl:'input[id$="-PIKMG"]'},
-  pick_mismatch:{once:'session',t:v=>`A quantidade de picking tem que ser igual à quantidade de remessa. Se o operador separou menos, a remessa fica incompleta e o SAP não deixa registrar a saída.`,hl:'input[id$="-PIKMG"]'},
+  vl01_items:{t:v=>`${isC()?'O SAP copiou a quantidade da ordem para a remessa. Abra a aba Picking e digite em Qtd.picking':'O SAP copiou a quantidade da ordem para a remessa. Falta o picking: digite em Qtd. picking'} exatamente o que foi separado na prateleira e registre a saída de mercadoria.`,hl:'input[id$="-PIKMG"], [data-tab="pick"]'},
+  pick_mismatch:{once:'session',t:v=>`A quantidade de picking tem que ser igual à quantidade de remessa. Se o operador separou menos, a remessa fica incompleta e o SAP não deixa registrar a saída.`,hl:'input[id$="-PIKMG"], [data-tab="pick"]'},
   pgi_done:{t:v=>`Saída de mercadoria registrada (movimento 601). O estoque de ${v.mat} no DEP1 caiu de ${v.from} para ${v.to} caixas. Agora o financeiro pode faturar: VF01.`,hl:'[data-to="VF01"]'},
   vf01_init:{t:v=>`Na VF01 o documento de referência é a remessa, não a ordem. O tipo F2 gera a fatura e dispara a NF-e. Informe a remessa ${v.deliv} e gere a fatura.`,hl:'#f-vf01-VBELN'},
-  nfe_screen:{t:v=>`O monitor de NF-e (J1BNFE) mostra o retorno da SEFAZ para cada nota. Verde com código 100 significa uso autorizado.`,hl:'.nf-status'},
-  nfe_auth:{t:v=>`A SEFAZ devolveu o código 100: uso autorizado. Repare no CFOP ${v.cfop}: o ICMS já vem incluso no preço, e o IPI é somado ao total da nota. O caminhão está liberado com o DANFE.`,hl:'.nf-status'},
+  nfe_screen:{t:v=>`O monitor de NF-e (J1BNFE) mostra o retorno da SEFAZ para cada nota. Verde com código 100 significa uso autorizado.`,hl:'.alv tr.on'},
+  nfe_auth:{t:v=>`A SEFAZ devolveu o código 100: uso autorizado. Repare no CFOP ${v.cfop}: o ICMS já vem incluso no preço, e o IPI é somado ao total da nota. O caminhão está liberado com o DANFE.`,hl:'.alv tr.on'},
   mat_err:{once:'session',t:v=>`Confira o código do material. Neste cenário existem FERT-900 e FERT-910 no centro BR01. Comece a digitar FERT e escolha da lista.`,hl:'input[id$="-MATNR"]'},
   cust_err:{once:'session',t:v=>`Cliente não encontrado. Digite 100 no Emissor da ordem e escolha o cliente da lista.`,hl:'#f-va01b-KUNNR'},
   deficit:{once:'session',t:v=>`Não há estoque livre suficiente no DEP1. Confira o saldo na SE16N, tabela MARD, ou restaure os dados mestres na tela inicial.`},
   vf_ref:{once:'session',t:v=>`Você informou uma ordem de venda. No faturamento com base em remessa, a referência é o número da remessa, que começa com 800.`,hl:'#f-vf01-VBELN'},
-  se16n:{t:v=>`A SE16N mostra as tabelas por trás de cada transação. Confira o que você gravou em VBAK, LIKP, MSEG, VBRK e J_1BNFDOC.`,hl:'#f-se16-tab'}
+  se16n:{t:v=>`A SE16N mostra as tabelas por trás de cada transação. Digite o nome da tabela (VBAK, LIKP, MSEG, VBRK, J_1BNFDOC…) e tecle F8 para ver o que você gravou.`,hl:'#f-se16-tab'}
 };
 const TIP_FOR={home:'home',VA01:'va01_init',VA01_2:'va01_items',VL01N:'vl01_init',VL01N_2:'vl01_items',VF01:'vf01_init',J1BNFE:'nfe_screen',SE16N:'se16n'};
 function mentor(k,v={},force){
@@ -602,7 +700,7 @@ function F({b,label,tech,sug,req,ph,w,help,numeric,ro,val}){
   <div class="ctl${req?' req':''}"><input id="${id}" data-bind="${b}" value="${e(v)}" ${sug?`data-suggest="${sug}"`:''} class="${numeric?'':'up'}" ${numeric?'inputmode="numeric"':''} ${ro?'readonly':''} ${ph?`placeholder="${e(ph)}"`:''} style="--w:${w||'16ch'}" autocomplete="off" autocapitalize="characters" spellcheck="false"><span class="desc" id="${id}-d">${e(d)}</span></div>
   ${help?`<p class="help">${help}</p>`:''}</div>`;
 }
-function RO(label,tech,val,help){return `<div class="f"><span class="lab" ${tech?`title="F1: ${tech}"`:''}><span>${label}</span>${tech?`<code>${tech}</code>`:''}</span><div class="ctl"><output class="val">${e(val)}</output></div>${help?`<p class="help">${help}</p>`:''}</div>`}
+function RO(label,tech,val,help,oid){return `<div class="f"><span class="lab" ${tech?`title="F1: ${tech}"`:''}><span>${label}</span>${tech?`<code>${tech}</code>`:''}</span><div class="ctl"><output class="val" ${oid?`id="${oid}"`:''}>${e(val)}</output></div>${help?`<p class="help">${help}</p>`:''}</div>`}
 function inp(b,{sug,w,aria,numeric}={}){const id=fid(b);return `<div class="ctl"><input id="${id}" data-bind="${b}" value="${e(getPath(b))}" ${sug?`data-suggest="${sug}"`:''} class="${numeric?'':'up'}" ${numeric?'inputmode="numeric"':''} style="--w:${w||'10ch'}" aria-label="${e(aria)}" autocomplete="off" spellcheck="false"></div>`}
 function head(tc,title,sub){return isC()?'':`<div class="scr-head"><span class="tc">${tc}</span><h1>${title}</h1>${sub?`<p>${sub}</p>`:''}</div>`}
 function btns(list){return `<div class="btns">${list.map(b=>`<button class="btn ${b.cls||''}" data-act="${b.act}" ${b.to?`data-to="${b.to}"`:''}>${b.label}</button>`).join('')}</div>`}
@@ -675,6 +773,83 @@ function rEasyAccess(){
   </div>${DISC}`;
 }
 
+/* ---------- Telas no layout do SAP GUI ---------- */
+function tabsS(key,list){const cur=D.tabs[key]||list[0][0];return `<div class="tabs-s" role="tablist">${list.map(([k,l,dis])=>`<button role="tab" ${dis?'data-act="na"':`data-act="tab" data-k="${key}"`} data-tab="${k}" title="${l}" class="${k===cur?'on':''}" aria-selected="${k===cur}">${l}</button>`).join('')}</div>`}
+const TFIELDS={VBAK:['VBELN','ERDAT','ERNAM','AUART','VKORG','VTWEG','SPART','KUNNR','BSTNK','NETWR','WAERK'],VBAP:['VBELN','POSNR','MATNR','ARKTX','KWMENG','VRKME','WERKS','NETPR','NETWR','MWSBP'],LIKP:['VBELN','LFART','VSTEL','LFDAT','KUNNR','BTGEW','GEWEI','WADAT_IST','WBSTK','FKSTK'],LIPS:['VBELN','POSNR','MATNR','ARKTX','LFIMG','PIKMG','VRKME','WERKS','LGORT','VGBEL','VGPOS'],MKPF:['MBLNR','MJAHR','BUDAT','USNAM','XBLNR'],MSEG:['MBLNR','ZEILE','BWART','MATNR','WERKS','LGORT','MENGE','MEINS','KUNNR'],VBRK:['VBELN','FKART','FKDAT','KUNRG','NETWR','MWSBK','WAERK','RFBSK','BELNR'],VBRP:['VBELN','POSNR','MATNR','FKIMG','VRKME','NETWR','MWSBP','VGBEL','VGPOS','AUBEL'],VBFA:['VBELV','POSNV','VBELN','POSNN','VBTYP_N','RFMNG'],J_1BNFDOC:['DOCNUM','MODEL','SERIES','NFENUM','DOCDAT','PARID','CFOP','NFTOT','REFKEY','ACCKEY','CODE','AUTHCOD'],J_1BNFLIN:['DOCNUM','ITMNUM','MATNR','MAKTX','NBM','CFOP','MENGE','NETWR','ICMS','IPI'],BKPF:['BUKRS','BELNR','GJAHR','BLART','BUDAT','XBLNR','AWKEY'],BSEG:['BELNR','BUZEI','BSCHL','KONTO','TXT','DMBTR','SHKZG']};
+const pesoDraft=c=>r2(c.lines.reduce((a,l)=>a+(l.m?l.q*l.m.BRGEW:0),0));
+function rVA01bC(){
+  const d=D.va01b,c=calcDraft(),k=cust(up(d.KUNNR)),cur=D.tabs.va||'vendas';
+  const items=`<div class="tbl-wrap"><table class="grid"><thead><tr><th>Item</th><th>Material</th><th>Quantidade ordem</th><th>UM</th><th>Denominação</th><th>TpI</th><th>Centro</th><th class="r">Valor líquido</th><th></th></tr></thead><tbody>
+    ${d.items.map((it,i)=>{const p=`va01b.items.${i}`,pos=pad((i+1)*10,6);return `<tr><td>${(i+1)*10}</td><td>${inp(p+'.MATNR',{sug:'matnr',w:'12ch',aria:'Material item '+pos})}</td><td>${inp(p+'.KWMENG',{w:'8ch',aria:'Quantidade item '+pos,numeric:1})}</td><td>CX</td><td id="${fid(p+'.MATNR')}-d">${e(descOf('matnr',it.MATNR))}</td><td>${it.MATNR?'TAN':''}</td><td>${inp(p+'.WERKS',{sug:'werks',w:'6ch',aria:'Centro item '+pos})}</td><td class="r" id="ipv-${i}">${money(c.lines[i].net)}</td><td>${i?`<button class="lnk" data-act="delitem" data-i="${i}" title="Eliminar item" aria-label="Eliminar item ${pos}">✕</button>`:''}</td></tr>`}).join('')}
+    ${'<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>'.repeat(Math.max(0,4-d.items.length))}
+    </tbody></table></div>`;
+  let body;
+  if(cur==='vendas')body=`<div class="frow">${RO('Data remessa desejada','RV45A-KETDAT','D   '+TODAY)}${RO('Centro fornecedor','VBAK-VWERK','BR01')}${RO('Bloqueio de remessa','VBAK-LIFSK','')}${RO('Bloqueio faturamento','VBAK-FAKSK','')}${RO('Condições pgto','VBKD-ZTERM','ZB30   30 dias líquido')}${RO('Incoterms','VBKD-INCO1','CIF   São Paulo')}${RO('Peso total','VBAK-BRGEW',qf(pesoDraft(c))+' KG','','peso')}${RO('Motivo da ordem','VBAK-AUGRU','')}</div><div class="tbl-title">Todos os itens</div>${items}`;
+  else body=`<div class="tbl-title">Todos os itens</div>${items}`;
+  return `<div class="stack">
+  <section class="panel"><div class="frow">${RO('Ordem padrão','VBAK-VBELN','')}${RO('Valor líquido','VBAK-NETWR',money(c.net)+' BRL','','hdrnet')}</div>
+    ${F({b:'va01b.KUNNR',label:'Emissor da ordem',tech:'VBAK-KUNNR',sug:'kunnr',req:1,w:'10ch'})}
+    ${RO('Recebedor mercad.','VBPA-KUNNR',k?`${k.KUNNR}   ${k.NAME1} / ${k.STRAS} / ${k.ORT01}`:'','','rcv')}
+    <div class="frow">${F({b:'va01b.BSTKD',label:'Nº pedido cliente',tech:'VBAK-BSTNK',w:'14ch'})}${RO('Data pedido','VBKD-BSTDK',TODAY)}</div></section>
+  <div>${tabsS('va',[['vendas','Vendas'],['itens','Síntese de itens'],['det','Detalhe de itens',1],['enc','Encomendante',1],['aq','Aquisição',1],['exp','Expedição',1],['rec','Motivo de recusa',1]])}<div class="tab-b">${body}</div></div>
+  <fieldset class="panel" id="pricing">${pricingHTML()}</fieldset></div>`;
+}
+function rVL01C(){
+  return `<div class="stack"><section class="panel">${F({b:'vl01.VSTEL',label:'Ponto de expedição',tech:'LIKP-VSTEL',sug:'vstel',req:1,w:'6ch'})}</section>
+  <fieldset class="panel"><legend>Seleção de ordens</legend>
+    ${F({b:'vl01.LEDAT',label:'Data de seleção',tech:'LV50C-DATBI',req:1,w:'11ch',numeric:1})}
+    ${F({b:'vl01.VBELN',label:'Ordem',tech:'LV50C-VBELN',sug:'ordem',req:1,w:'10ch',numeric:1})}
+    <div class="frow">${RO('Itens de','LV50C-ABPOS','')}${RO('Itens até','LV50C-BIPOS','')}</div></fieldset>
+  <fieldset class="panel"><legend>Especificações de remessa</legend>${RO('Tipo de remessa','LIKP-LFART','LF   Remessa')}${RO('Ponto de expedição','TVST-VTEXT','Expedição São Paulo · Doca 1')}</fieldset></div>`;
+}
+function rVL01bC(){
+  const r=D.vl01b,k=cust(r.KUNNR),cur=D.tabs.vl||'sint';
+  const peso=r2(r.items.reduce((a,x)=>a+x.LFIMG*(mat(x.MATNR)?.BRGEW||0),0));
+  const done=r.items.every(it=>num(it.PIKMG)===it.LFIMG);
+  let body;
+  if(cur==='sint'){
+    body=`<div class="frow">${RO('Data planej.SM','LIKP-WADAT',TODAY+'   00:00')}${RO('Data efetiva SM','LIKP-WADAT_IST','')}${RO('Total de pesos','LIKP-BTGEW',qf(peso)+' KG')}${RO('Nº de embalagens','LIKP-ANZPK','')}</div>
+    <div class="tbl-title">Todos os itens</div><div class="tbl-wrap"><table class="grid"><thead><tr><th>Item</th><th>Material</th><th class="r">Qtd.fornecimento</th><th>UM</th><th>Denominação</th><th>TpI</th><th>Centro</th><th>Lote</th></tr></thead><tbody>
+    ${r.items.map(it=>`<tr><td>${+it.POSNR}</td><td>${it.MATNR}</td><td class="r">${qf(it.LFIMG)}</td><td>CX</td><td>${e(it.ARKTX)}</td><td>TAN</td><td>${it.WERKS}</td><td></td></tr>`).join('')}${'<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>'.repeat(3)}</tbody></table></div>`;
+  }else{
+    body=`<div class="frow">${RO('Data planej.picking','LIKP-KODAT',TODAY+'   00:00')}${RO('Status geral picking','VBUK-KOSTK',done?'C   Processado completamente':'A   Não processado')}${RO('Status SM','VBUK-WBSTK','A   Não processado')}${RO('Depósito','LIPS-LGORT','DEP1   Produtos Acabados')}</div>
+    <div class="tbl-title">Todos os itens</div><div class="tbl-wrap"><table class="grid"><thead><tr><th>Item</th><th>Material</th><th>Centro</th><th>Depósito</th><th class="r">Qtd.fornecimento</th><th>UM</th><th>Qtd.picking</th><th>UM</th><th>Denominação</th></tr></thead><tbody>
+    ${r.items.map((it,i)=>{const p=`vl01b.items.${i}`;return `<tr><td>${+it.POSNR}</td><td>${it.MATNR}</td><td>${it.WERKS}</td><td>${inp(p+'.LGORT',{sug:'lgort',w:'6ch',aria:'Depósito item '+it.POSNR})}</td><td class="r">${qf(it.LFIMG)}</td><td>CX</td><td>${inp(p+'.PIKMG',{w:'8ch',aria:'Quantidade de picking item '+it.POSNR,numeric:1})}</td><td>CX</td><td>${e(it.ARKTX)}</td></tr>`}).join('')}${'<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>'.repeat(3)}</tbody></table></div>`;
+  }
+  return `<div class="stack"><section class="panel"><div class="frow">${RO('Fornecimento de saída','LIKP-VBELN','')}${RO('Data documento','LIKP-ERDAT',TODAY)}</div>${RO('Recebedor mercad.','LIKP-KUNNR',`${r.KUNNR}   ${k?k.NAME1+' / '+k.ORT01:''}`)}</section>
+  <div>${tabsS('vl',[['sint','Síntese de itens'],['pick','Picking'],['carga','Carga',1],['transp','Transporte',1],['status','Estado/Movimento',1],['wm','Gestão de depósito',1]])}<div class="tab-b">${body}</div></div></div>`;
+}
+function rVF01C(prev){
+  const v=up(D.vf01.VBELN),cat=db().LIKP.some(x=>x.VBELN===v)?'J':db().VBAK.some(x=>x.VBELN===v)?'C':'';
+  return `<div class="stack"><section class="panel">${F({b:'vf01.FKART',label:'Tipo doc.faturamento',tech:'RV60A-FKART',sug:'fkart',w:'5ch'})}</section>
+  <fieldset class="panel"><legend>Parâmetros de criação</legend>${RO('Data de faturamento','RV60A-FKDAT',TODAY)}${RO('Data de serviço','RV60A-FBUDA','')}${RO('Data de preço','RV60A-PRSDT','')}</fieldset>
+  <div class="tbl-title">Documentos a processar</div><div class="tbl-wrap"><table class="grid"><thead><tr><th>Documento</th><th>Item</th><th>Categ.doc.SD</th><th>Estado processamento</th></tr></thead><tbody>
+  <tr><td>${inp('vf01.VBELN',{sug:'remessa',w:'12ch',aria:'Documento a processar',numeric:1})}</td><td></td><td>${cat}</td><td>${D.vf01.preview?'Documento verificado':''}</td></tr>${'<tr><td>&nbsp;</td><td></td><td></td><td></td></tr>'.repeat(4)}</tbody></table></div>
+  ${prev}</div>`;
+}
+function rSE16C(){
+  const t=up(D.se16.tab),rows=TDESC[t]?db()[t]:[];
+  if(D.se16.run&&TDESC[t]){
+    const cols=[...new Set([...(TFIELDS[t]||[]),...rows.flatMap(r=>Object.keys(r))])];
+    const fmt=v=>typeof v==='number'?(Number.isInteger(v)?String(v):String(v).replace('.',',')):e(v??'');
+    return `<div class="stack"><div class="nfh"><span class="nfc"><span>Tabela:</span><output>${t}</output></span><span class="nfc"><span>Texto:</span><output>${TDESC[t]}</output></span><span class="nfc"><span>Nº ocorrências:</span><output>${rows.length}</output></span></div>
+    <div class="alv"><div class="alv-tb">${[['doc','Detalhes'],['up','Ordenar em ordem crescente'],['down','Ordenar em ordem decrescente'],['find','Procurar'],['omenu','Definir filtro'],['price','Total'],['print','Imprimir'],['short','Exportar'],['layout','Selecionar layout']].map(x=>`<button class="ab" data-act="na" title="${x[1]}" aria-label="${x[1]}">${svg(x[0])}</button>`).join('')}</div>
+    <div class="alv-g"><table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rows.length?rows.map(r=>`<tr>${cols.map(c=>`<td class="${typeof r[c]==='number'?'r':''}">${fmt(r[c])}</td>`).join('')}</tr>`).join(''):`<tr class="none"><td colspan="${cols.length}">Nenhum valor encontrado. Esta tabela recebe dados quando você executa o fluxo.</td></tr>`}</tbody></table></div></div></div>`;
+  }
+  const fields=rows.length?[...new Set(rows.flatMap(r=>Object.keys(r)))]:(TFIELDS[t]||[]);
+  return `<div class="stack"><section class="panel"><div class="frow">${F({b:'se16.tab',label:'Tabela',tech:'GD-TAB',sug:'tabela',req:1,w:'14ch'})}${RO('Tabela de textos','GD-TXT_TAB','Nenhuma tabela de textos')}</div>${RO('Nº máx.ocorrências','GD-MAX_LINES','500')}</section>
+  <div class="tbl-title">Critérios de seleção</div><div class="tbl-wrap"><table class="grid"><thead><tr><th>Nome do campo</th><th>Opção</th><th>Valor inferior</th><th>Valor superior</th><th>Mais</th><th>Saída</th></tr></thead><tbody>
+  ${fields.length?fields.map(f=>`<tr><td>${f}</td><td></td><td></td><td></td><td>⇨</td><td>☑</td></tr>`).join(''):'<tr><td colspan="6">Informe uma tabela e tecle Enter.</td></tr>'}</tbody></table></div>
+  <p class="help" style="display:block">Tecle F8 ou Executar para ver o conteúdo da tabela.</p></div>`;
+}
+function se16Enter(){
+  const t=up(D.se16.tab);
+  if(!t){markBad('#f-se16-tab');return msg('e','Preencher todos os campos obrigatórios')}
+  if(!TDESC[t]){markBad('#f-se16-tab');return msg('e',`Tabela ${t} não existe ou não está ativa`)}
+  D.se16.tab=t;
+  if(isC()){D.se16.run=true;render();msg('s',`${db()[t].length} entrada(s) selecionada(s)`)}else render();
+}
+
 function rVA01(){
   return head('VA01','Criar ordem de venda','Tela inicial')+`<div class="narrow">${resultCard('VA01')}</div><div class="stack narrow">
   <section class="panel">${F({b:'va01.AUART',label:'Tipo de ordem',tech:'VBAK-AUART',sug:'auart',req:1,w:'5ch',help:'Define as regras do documento: OR é uma venda comercial normal, não devolução nem amostra grátis.'})}</section>
@@ -682,6 +857,8 @@ function rVA01(){
     ${F({b:'va01.VKORG',label:'Organização de vendas',tech:'VBAK-VKORG',sug:'vkorg',req:1,w:'6ch',help:'A unidade de negócio que vende, para relatórios e impostos.'})}
     ${F({b:'va01.VTWEG',label:'Canal de distribuição',tech:'VBAK-VTWEG',sug:'vtweg',req:1,w:'4ch',help:'Estratégia de mercado (atacado, varejo, e-commerce). O preço pode mudar por canal.'})}
     ${F({b:'va01.SPART',label:'Setor de atividade',tech:'VBAK-SPART',sug:'spart',req:1,w:'4ch',help:'Agrupa linhas de produto, como doces ou bebidas.'})}
+    ${F({b:'va01.VKBUR',label:'Escritório de vendas',tech:'VBAK-VKBUR',w:'6ch'})}
+    ${F({b:'va01.VKGRP',label:'Equipe de vendas',tech:'VBAK-VKGRP',w:'5ch'})}
   </fieldset>
   ${btns([{act:'enter',label:'Avançar',cls:'pri'}])}</div>`;
 }
@@ -697,6 +874,7 @@ function pricingHTML(){
   <div class="grand"><dt>Total da NF-e</dt><dd>R$ ${money(c.total)}</dd></div></dl></div>`;
 }
 function rVA01b(){
+  if(isC())return rVA01bC();
   const d=D.va01b,c=calcDraft();
   let items;
   if(isC()){
@@ -724,10 +902,12 @@ function updatePricing(){
   const c=calcDraft();
   const p=$('#pricing');if(p)p.innerHTML=pricingHTML();
   const ci=$('#cinfo');if(ci)ci.innerHTML=cinfoHTML();
+  const hn=$('#hdrnet');if(hn)hn.textContent=money(c.net)+' BRL';const pe=$('#peso');if(pe)pe.textContent=qf(pesoDraft(c))+' KG';const rv=$('#rcv');if(rv)rv.textContent=c.k?`    /  / `:'';
   c.lines.forEach((l,i)=>{const a=document.getElementById('ip-'+i);if(a)a.innerHTML=itemPriceHTML(l);const b=document.getElementById('ipv-'+i);if(b)b.textContent=money(l.net)});
 }
 
 function rVL01(){
+  if(isC())return rVL01C();
   return head('VL01N','Criar remessa de fornecimento','Com referência à ordem de venda')+`<div class="narrow">${resultCard('VL01N')}</div><div class="stack narrow"><section class="panel">
   ${F({b:'vl01.VSTEL',label:'Ponto de expedição',tech:'LIKP-VSTEL',sug:'vstel',req:1,w:'6ch',help:'O local físico de saída dentro do centro, como a doca de carregamento.'})}
   ${F({b:'vl01.LEDAT',label:'Data de seleção',tech:'LV50C-DATBI',req:1,w:'11ch',numeric:1,help:'O SAP seleciona os itens da ordem com data de remessa até este dia.'})}
@@ -736,6 +916,7 @@ function rVL01(){
   </fieldset>${btns([{act:'enter',label:'Avançar para o picking',cls:'pri'}])}</div>`;
 }
 function rVL01b(){
+  if(isC())return rVL01bC();
   const r=D.vl01b,k=cust(r.KUNNR);
   let items;
   if(isC()){
@@ -756,6 +937,7 @@ function rVF01(){
   let prev='';
   if(D.vf01.preview){const l=db().LIKP.find(x=>x.VBELN===up(D.vf01.VBELN));if(l){const c=billCalc(l);prev=`<section class="panel"><span class="sec-t">Prévia da fatura F2</span><div class="tbl-wrap"><table class="grid"><thead><tr><th>Item</th><th>Material</th><th class="r">Qtd.faturada</th><th class="r">Valor líquido</th></tr></thead><tbody>${c.lines.map(x=>`<tr><td>${x.POSNR}</td><td>${x.MATNR}</td><td class="r">${qf(x.q)} CX</td><td class="r">${money(x.net)}</td></tr>`).join('')}</tbody></table></div>
   <dl class="kv"><div><dt>Valor líquido</dt><dd>${money(c.net)}</dd></div><div><dt>Impostos (ICMS + IPI)</dt><dd>${money(c.tax)}</dd></div><div class="grand"><dt>Total da NF-e</dt><dd>R$ ${money(c.total)}</dd></div></dl></section>`}}
+  if(isC())return rVF01C(prev);
   return head('VF01','Criar documento de faturamento','Fatura comercial e NF-e')+`<div class="stack narrow"><section class="panel">
   ${F({b:'vf01.FKART',label:'Tipo de faturamento',tech:'RV60A-FKART',sug:'fkart',req:1,w:'4ch',help:'F2 é a fatura padrão: gera a duplicata para o cliente pagar e aciona o módulo fiscal.'})}
   ${RO('Data de faturamento','RV60A-FKDAT',TODAY)}
@@ -763,25 +945,24 @@ function rVF01(){
   ${F({b:'vf01.VBELN',label:'Documento de referência',tech:'KOMFK-VBELN',sug:'remessa',req:1,ph:'Ex.: 80012433',w:'10ch',numeric:1,help:'O número da remessa com saída de mercadoria registrada.'})}
   </fieldset>${prev}${btns([{act:'enter',label:'Verificar'},{act:'save',label:'Executar e gerar fatura',cls:'pri'}])}</div>`;
 }
-function rNFe(){
-  const list=db().J_1BNFDOC.slice().reverse();
-  if(!list.length)return head('J1BNFE','Monitor de Nota Fiscal','Simulação SEFAZ Brasil')+`<section class="panel"><p class="empty">Nenhuma NF-e emitida ainda. A nota nasce quando você fatura uma remessa na VF01.</p>${btns([{act:'go',to:'VF01',label:'Abrir VF01',cls:'pri'}])}</section>`;
-  const sel=list.find(n=>n.DOCNUM===D.nfSel)||list[0];
+const NI={
+  ok:'<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><rect x="1" y="1" width="10" height="10" rx="1" fill="#2B8A3E"/></svg>',
+  wait:'<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.5" fill="#F0B400" stroke="#9A6A00"/></svg>',
+  err:'<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.5" fill="#D9302C"/><circle cx="6" cy="6" r="1.6" fill="#fff"/></svg>',
+  flag:c=>`<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 1v10" stroke="#555" stroke-width="1.2"/><path d="M3 1.5h7l-2 2.5 2 2.5H3z" fill="${c}"/></svg>`,
+  canc:'<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#6A7B8C" stroke-width="1.2"/><path d="M4.8 4.8l4.4 4.4M9.2 4.8l-4.4 4.4" stroke="#6A7B8C" stroke-width="1.2"/></svg>',
+  pdf:'<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 1h6l3 3v9H3z" fill="#fff" stroke="#6A7B8C"/><path d="M5 10c1.4-2.8 1.9-4.8 2.1-5.6.4 1.2.9 3 3 4.3-2 .1-3.9.6-5.1 1.3z" fill="none" stroke="#C0392B" stroke-width=".9"/></svg>',
+  xml:'<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 1h6l3 3v9H3z" fill="#fff" stroke="#6A7B8C"/><path d="M5.5 6L4.3 7.6 5.5 9.2M8.5 6l1.2 1.6-1.2 1.6" stroke="#2F5F9E" fill="none"/></svg>'
+};
+function danfeHTML(sel){
   const k=cust(sel.PARID),lines=db().J_1BNFLIN.filter(x=>x.DOCNUM===sel.DOCNUM),fi=db().BSEG.filter(x=>x.BELNR===sel.BELNR);
-  const auth=sel.CODE==='100';
-  const c=cycle();const flow=c.nf&&c.nf.DOCNUM===sel.DOCNUM?flowHTML(c):'';
-  return head('J1BNFE','Monitor de Nota Fiscal','Simulação SEFAZ Brasil')+`<div class="stack">
-  ${list.length>1?`<div class="nflist">${list.map(n=>`<button class="nfrow ${n===sel?'on':''}" data-act="nfsel" data-doc="${n.DOCNUM}"><b>NF-e ${n.NFENUM}-${n.SERIES}</b><span>${n.CODE==='100'?'🟢 100':'⏳ envio'}</span><small>${e(cust(n.PARID)?.NAME1||n.PARID)}</small><small>R$ ${money(n.NFTOT)}</small></button>`).join('')}</div>`:''}
-  <div class="nf-status ${auth?'auth':''}">${auth?'<span class="dot" aria-hidden="true"></span>':'<span class="spin" aria-hidden="true"></span>'}<div><b>${auth?'100 · Autorizado o uso da NF-e':'Aguardando retorno da SEFAZ-SP…'}</b><small>${auth?`Protocolo ${sel.AUTHCOD} · ${sel.AUTHDATE}`:'Lote transmitido. Consultando recibo.'}</small></div></div>
-  <section class="panel"><span class="sec-t">Chave de acesso</span><div class="key" id="nfkey">${fKey(sel.ACCKEY)}</div><div class="btns"><button class="btn sm" data-act="copykey">Copiar chave</button></div>
-  <dl class="kv"><div><dt>Nº documento (DOCNUM)</dt><dd>${sel.DOCNUM}</dd></div><div><dt>Fatura de referência</dt><dd>${sel.REFKEY}</dd></div><div><dt>Modelo · Série · Número</dt><dd>${sel.MODEL} · ${sel.SERIES} · ${sel.NFENUM}</dd></div></dl>
-  ${flow}</section>
-  <div class="danfe" aria-label="DANFE simplificado">
-    <div class="dh"><strong>DANFE</strong><span>Documento Auxiliar da<br>Nota Fiscal Eletrônica · 1 - Saída</span></div>
+  return `<div class="danfe" id="danfe" aria-label="DANFE">
+    <div class="dh"><strong>DANFE</strong><span>Documento Auxiliar da<br>Nota Fiscal Eletrônica · 1 - Saída · Nº ${sel.NFENUM} · Série ${sel.SERIES}</span></div>
     <div class="bx">
       <div class="full"><i>Emitente</i><span class="v">${e(EMIT.NAME)} · CNPJ ${fCNPJ(EMIT.CNPJ)} · IE ${EMIT.IE}</span></div>
+      <div class="full"><i>Chave de acesso</i><span class="v">${fKey(sel.ACCKEY)}</span></div>
       <div class="full"><i>Natureza da operação</i><span class="v">${sel.CFOP==='5101'?'Venda de produção do estabelecimento':'Venda de produção do estab. (interestadual)'}</span></div>
-      <div><i>CFOP</i><span class="v">${sel.CFOP}</span></div><div><i>Data de emissão</i><span class="v">${sel.DOCDAT}</span></div>
+      <div><i>CFOP</i><span class="v">${sel.CFOP}</span></div><div><i>Protocolo de autorização</i><span class="v">${sel.AUTHCOD||'—'}</span></div>
       <div class="full"><i>Destinatário</i><span class="v">${e(k?.NAME1||'')} · CNPJ ${k?.STCD1||''} · IE ${k?.STCD3||''} · ${k?.ORT01||''}/${k?.REGIO||''}</span></div>
     </div>
     <div class="t">Dados dos produtos</div>
@@ -791,16 +972,49 @@ function rNFe(){
     <div class="bx">
       <div><i>Base de cálculo ICMS</i><span class="v">${money(sel.NFNET)}</span></div><div><i>Valor do ICMS (${sel.ICMSR}%)</i><span class="v">${money(sel.ICMS)}</span></div>
       <div><i>Valor dos produtos</i><span class="v">${money(sel.NFNET)}</span></div><div><i>Valor do IPI</i><span class="v">${money(sel.IPI)}</span></div>
-      <div class="full" style="border-bottom:0"><i>Valor total da nota</i><span class="v" style="font-size:16px;font-weight:600">R$ ${money(sel.NFTOT)}</span></div>
+      <div class="full" style="border-bottom:0"><i>Valor total da nota</i><span class="v" style="font-size:16px;font-weight:bold">R$ ${money(sel.NFTOT)}</span></div>
     </div>
   </div>
-  ${fi.length?`<section class="panel"><span class="sec-t">Contabilização · Doc. ${sel.BELNR} (BKPF/BSEG)</span><div class="tbl-wrap"><table class="grid"><thead><tr><th>Lin</th><th>CL</th><th>Conta</th><th>Texto</th><th class="r">Débito</th><th class="r">Crédito</th></tr></thead><tbody>${fi.map(x=>`<tr><td>${x.BUZEI}</td><td>${x.BSCHL}</td><td>${x.KONTO}</td><td>${e(x.TXT)}</td><td class="r">${x.SHKZG==='S'?money(x.DMBTR):''}</td><td class="r">${x.SHKZG==='H'?money(x.DMBTR):''}</td></tr>`).join('')}</tbody></table></div><p class="help">O cliente fica com uma partida em aberto de R$ ${money(sel.NFTOT)}, a duplicata a receber.</p></section>`:''}
-  </div>`;
+  ${fi.length?`<section class="panel"><span class="sec-t">Contabilização · Doc. ${sel.BELNR} (BKPF/BSEG)</span><div class="tbl-wrap"><table class="grid"><thead><tr><th>Lin</th><th>CL</th><th>Conta</th><th>Texto</th><th class="r">Débito</th><th class="r">Crédito</th></tr></thead><tbody>${fi.map(x=>`<tr><td>${x.BUZEI}</td><td>${x.BSCHL}</td><td>${x.KONTO}</td><td>${e(x.TXT)}</td><td class="r">${x.SHKZG==='S'?money(x.DMBTR):''}</td><td class="r">${x.SHKZG==='H'?money(x.DMBTR):''}</td></tr>`).join('')}</tbody></table></div><p class="help">O cliente fica com uma partida em aberto de R$ ${money(sel.NFTOT)}, a duplicata a receber.</p></section>`:''}`;
+}
+function rNFe(){
+  const all=db().J_1BNFDOC.slice().reverse();
+  const sel=all.find(n=>n.DOCNUM===D.nfSel)||all[0];
+  const ap=all.filter(n=>n.CODE==='100').length,pend=all.length-ap;
+  const box=(l,v)=>`<span class="nfc"><span>${l}:</span><output>${v}</output></span>`;
+  const tbi=[['doc','Detalhes'],0,['up','Ordenar em ordem crescente'],['down','Ordenar em ordem decrescente'],['find','Procurar'],['omenu','Definir filtro'],0,['price','Total'],0,['print','Imprimir'],['short','Exportar'],['layout','Selecionar layout']];
+  const tb=`<div class="alv-tb">${tbi.map(x=>x===0?'<span class="sep"></span>':`<button class="ab" data-act="na" title="${x[1]}" aria-label="${x[1]}">${svg(x[0])}</button>`).join('')}<span class="sep"></span><button class="ab" data-act="enter" title="Atualizar">${svg('exec')}<span>Atualizar</span></button></div>`;
+  const cols=['','Canc','PDF','XML','CatNF','AutNF','Status','Cód.SEFAZ','Descrição do Cód','Filial','Nº Doc','Nº NF-e','Mod','Sér.','Dt.Emissão','Parceiro','Nome','Valor total'];
+  const rows=all.length?all.map(n=>{const k=cust(n.PARID),okk=n.CODE==='100',on=sel&&n.DOCNUM===sel.DOCNUM;
+    return `<tr class="${on?'on':''}" data-act="nfsel" data-doc="${n.DOCNUM}"><td class="c"><input type="checkbox" ${on?'checked':''} tabindex="-1" aria-label="Selecionar NF-e ${n.NFENUM}"></td>
+    <td class="c"><button class="ib" data-act="na" title="Cancelar NF-e" aria-label="Cancelar NF-e">${NI.canc}</button></td>
+    <td class="c"><button class="ib" data-act="danfe" data-doc="${n.DOCNUM}" title="Visualizar DANFE" aria-label="Visualizar DANFE">${NI.pdf}</button></td>
+    <td class="c"><button class="ib" data-act="na" title="Baixar XML" aria-label="Baixar XML">${NI.xml}</button></td>
+    <td>NFe</td><td class="c">${NI.flag(okk?'#2B8A3E':'#F0B400')}</td><td class="c">${okk?NI.ok:NI.wait}</td><td class="r">${okk?'100':'103'}</td><td>${okk?'Autorizada':'Lote em processamento'}</td>
+    <td>0001</td><td class="r">${+n.DOCNUM}</td><td class="r">${n.NFENUM}</td><td class="r">55</td><td>${+n.SERIES}</td><td>${n.DOCDAT}</td><td>${n.PARID}</td><td>${e(k?.NAME1||'')}</td><td class="r">${money(n.NFTOT)}</td></tr>`}).join('')
+    :`<tr class="none"><td colspan="${cols.length}">Nenhuma nota fiscal selecionada. A NF-e nasce quando você fatura uma remessa na VF01.</td></tr>`;
+  let det='';
+  if(sel){
+    const [d1,h1]=(sel.SENT||sel.AUTHDATE||sel.DOCDAT+' 00:00:00').split(' ');
+    const hist=[[d1,h1,'103','','Lote recebido com sucesso','NF-e transmitida à SEFAZ-SP']];
+    if(sel.CODE==='100'){const [d2,h2]=sel.AUTHDATE.split(' ');hist.push([d2,h2,'100',sel.AUTHCOD,'Autorizada','Autorizado o uso da NF-e'])}
+    det=`<div class="alv"><div class="hist-t">Histórico de status · NF-e ${sel.NFENUM}</div><div class="alv-g"><table><thead><tr><th>Nº Doc</th><th>Dt.Modif.</th><th>Hr.Modif.</th><th>Cód</th><th>Protocolo autor.</th><th>Status atual</th><th>Descrição estendida</th></tr></thead><tbody>
+      ${hist.reverse().map(h=>`<tr><td class="r">${+sel.DOCNUM}</td><td>${h[0]}</td><td>${h[1]}</td><td class="r">${h[2]}</td><td>${h[3]}</td><td>${h[4]}</td><td>${h[5]}</td></tr>`).join('')}</tbody></table></div>
+      <div class="nfkey"><span><b>Chave de acesso:</b> <span id="nfkey">${fKey(sel.ACCKEY)}</span></span><button class="ab" data-act="copykey" title="Copiar chave">${svg('doc')}<span>Copiar chave</span></button><button class="ab" data-act="danfe" data-doc="${sel.DOCNUM}" title="Visualizar DANFE">${NI.pdf}<span>${D.nfDanfe===sel.DOCNUM?'Ocultar DANFE':'Visualizar DANFE'}</span></button></div></div>`;
+    const c=cycle();if(c.nf&&c.nf.DOCNUM===sel.DOCNUM)det+=`<section class="panel"><span class="sec-t">Fluxo de documentos</span>${flowHTML(c)}</section>`;
+    if(D.nfDanfe===sel.DOCNUM)det+=danfeHTML(sel);
+  }
+  return head('J1BNFE','Monitor de emissão NF-e','Simulação SEFAZ Brasil')+`<div class="stack">
+  <div class="nfh">${box('Notas selecionadas',all.length)}${box('Mercantil',all.length)}${box('Serviços',0)}${box('Aprovadas',ap)}${box('Rejeitadas',0)}${box('Pendentes',pend)}<span class="nfsrv">Status servidor SEFAZ-SP: ${NI.ok}</span></div>
+  <div class="alv">${tb}<div class="alv-g"><table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div></div>
+  ${det}
+  ${all.length?'':btns([{act:'go',to:'VF01',label:'Abrir VF01',cls:'pri'}])}</div>`;
 }
 const TDESC={KNA1:'Mestre de clientes',MARA:'Dados gerais de material',MARC:'Dados de centro do material',MARD:'Estoque por depósito',A304:'Condição de preço PR00',J_1BTXIC1:'Alíquotas de ICMS',J_1BTXIP1:'Alíquotas de IPI',T001W:'Centros',T001L:'Depósitos',TVKO:'Organizações de vendas',TVTW:'Canais de distribuição',TSPA:'Setores de atividade',TVAK:'Tipos de documento de vendas',TVST:'Pontos de expedição',
   VBAK:'Documento de vendas: cabeçalho',VBAP:'Documento de vendas: item',LIKP:'Remessa: cabeçalho',LIPS:'Remessa: item',MKPF:'Documento de material: cabeçalho',MSEG:'Documento de material: item',VBRK:'Faturamento: cabeçalho',VBRP:'Faturamento: item',VBFA:'Fluxo de documentos',J_1BNFDOC:'Nota fiscal: cabeçalho',J_1BNFLIN:'Nota fiscal: item',BKPF:'Contabilidade: cabeçalho',BSEG:'Contabilidade: item'};
 const TGROUP=[['Dados mestres',['KNA1','MARA','MARC','MARD','A304','J_1BTXIC1','J_1BTXIP1']],['Documentos do aluno',['VBAK','VBAP','LIKP','LIPS','MKPF','MSEG','VBRK','VBRP','VBFA','J_1BNFDOC','J_1BNFLIN','BKPF','BSEG']],['Customizing',['T001W','T001L','TVKO','TVTW','TSPA','TVAK','TVST']]];
 function rSE16(){
+  if(isC())return rSE16C();
   const t=D.se16.tab,rows=db()[t]||[];
   const cols=[...new Set(rows.flatMap(r=>Object.keys(r)))];
   const fmt=v=>typeof v==='number'?(Number.isInteger(v)?String(v):String(v).replace('.',',')):e(v);
@@ -868,11 +1082,12 @@ function vl01Enter(){
   if(!its.length){markBad('#f-vl01-VBELN');return msg('e',`Ordem ${VB} não contém itens relevantes para remessa (já fornecida)`)}
   const items=its.map((it,i)=>{const open=openQty(it),av=Math.max(stock(it.MATNR,it.WERKS),0);return {POSNR:pad((i+1)*10,6),VGPOS:it.POSNR,MATNR:it.MATNR,ARKTX:it.ARKTX,WERKS:it.WERKS,open,LFIMG:Math.min(open,av),PIKMG:'',LGORT:'DEP1'}}).filter(x=>x.LFIMG>0);
   if(!items.length){mentor('deficit');return msg('e',`Déficit de estoque de utilização livre: ${its[0].MATNR} ${its[0].WERKS} DEP1`)}
-  D.vl01b={order:VB,KUNNR:o.KUNNR,VSTEL:VS,LEDAT:DT,items};
+  D.vl01b={order:VB,KUNNR:o.KUNNR,VSTEL:VS,LEDAT:DT,items};D.tabs.vl='sint';
   if(items.some(x=>x.LFIMG<x.open))msg('w','Quantidade de remessa reduzida por falta de estoque livre');else clearMsg();
   go('VL01N_2');
 }
 function vl01Check(quiet){
+  if(isC()&&D.tabs.vl!=='pick'&&D.vl01b.items.some(it=>num(it.PIKMG)!==it.LFIMG||up(it.LGORT)!=='DEP1')){D.tabs.vl='pick';render()}
   for(const [i,it] of D.vl01b.items.entries()){
     const L=up(it.LGORT),b=`#f-vl01b-items-${i}-`,p=num(it.PIKMG);
     if(!db().T001L.some(x=>x.WERKS===it.WERKS&&x.LGORT===L)){markBad(b+'LGORT');return msg('e',`Depósito ${L||'(vazio)'} não existe no centro ${it.WERKS}`)}
@@ -930,7 +1145,7 @@ function vf01Save(){
     db().J_1BNFLIN.push({DOCNUM:doc,ITMNUM:pad((i+1)*10,6),MATNR:x.MATNR,MAKTX:x.m.MAKTX,NBM:x.m.STEUC,CFOP:cfop,MENGE:x.q,MEINS:'CX',NETPR:x.p,NETWR:x.net,ICMS:x.icms,IPI:x.ipi,REFKEY:bill});
   });
   l.FKSTK='C';
-  db().J_1BNFDOC.push({DOCNUM:doc,MODEL:'55',SERIES:'001',NFENUM:pad(nfn,9),DOCDAT:TODAY,PARID:k.KUNNR,CFOP:cfop,NFNET:c.net,ICMSR:c.ir,ICMS:c.icms,IPI:c.ipi,NFTOT:c.total,REFKEY:bill,BELNR:fi,ACCKEY:nfKey(nfn,(nfn*7919+31)%1e8),DOCSTA:'',CODE:'',AUTHCOD:'',AUTHDATE:''});
+  db().J_1BNFDOC.push({DOCNUM:doc,MODEL:'55',SERIES:'001',NFENUM:pad(nfn,9),DOCDAT:TODAY,PARID:k.KUNNR,CFOP:cfop,NFNET:c.net,ICMSR:c.ir,ICMS:c.icms,IPI:c.ipi,NFTOT:c.total,REFKEY:bill,BELNR:fi,ACCKEY:nfKey(nfn,(nfn*7919+31)%1e8),SENT:`${TODAY} ${hhmm()}`,DOCSTA:'',CODE:'',AUTHCOD:'',AUTHDATE:''});
   db().BKPF.push({BUKRS:'BR01',BELNR:fi,GJAHR:NOW.getFullYear(),BLART:'RV',BUDAT:TODAY,XBLNR:pad(nfn,9)+'-001',AWKEY:bill});
   [['01',k.KUNNR,`Cliente ${k.NAME1.split(' ').slice(0,3).join(' ')}`,c.total,'S'],['50','3110001','Receita bruta de vendas',c.net,'H'],['50','2130002','IPI a recolher',c.ipi,'H'],['40','3120001','ICMS sobre vendas',c.icms,'S'],['50','2130001','ICMS a recolher',c.icms,'H']]
     .forEach(([bs,ko,tx,v,sh],i)=>db().BSEG.push({BELNR:fi,BUZEI:pad(i+1,3),BSCHL:bs,KONTO:ko,TXT:tx,DMBTR:v,SHKZG:sh}));
@@ -957,8 +1172,8 @@ const R={
   VL01N:{title:'Criar fornecimento de saída c/ref. a ordem cliente',render:rVL01,enter:vl01Enter},
   VL01N_2:{title:'Fornecimento de saída Criar: síntese',render:rVL01b,enter:()=>vl01Check(),save:()=>msg('w','Neste cenário, use "Registrar saída de mercadoria" para gravar a remessa com a baixa de estoque'),back:()=>go('VL01N'),pgi},
   VF01:{title:'Criar documento de faturamento',render:rVF01,enter:vf01Enter,save:vf01Save},
-  J1BNFE:{title:'Monitor NF-e',render:rNFe,enter:()=>render()},
-  SE16N:{title:'Navegador geral de tabelas',render:rSE16,enter:()=>render()}
+  J1BNFE:{title:'Monitor de emissão NF-e',render:rNFe,enter:()=>render()},
+  SE16N:{title:'Navegador geral de tabelas',render:rSE16,enter:se16Enter,back:()=>{if(D.se16.run){D.se16.run=false;render()}else go('home')}}
 };
 const GRP={VA01_2:'VA01',VL01N_2:'VL01N'};
 function go(route){
@@ -1040,14 +1255,14 @@ const APPTB={
   VL01N:[['doc','Criar sem referência à ordem','','Sem referência à ordem',1]],
   VL01N_2:[['truck','Registrar saída de mercadoria','pgi','Registrar SM'],['chk','Verificar','enter','Verificar'],0,['items','Picking','enter','Picking']],
   VF01:[['items','Síntese de documentos de faturamento','enter','Síntese doc.faturamento'],['omenu','Lista de seleção','','Lista de seleção',1]],
-  J1BNFE:[['exec','Atualizar','enter','Atualizar']],
+  J1BNFE:[['exec','Atualizar','enter','Atualizar'],['omenu','Parâmetros de seleção NF-e','na','Parâmetros de seleção NF-e'],['down','Mais','na','Mais']],
   SE16N:[['exec','Executar (F8)','enter','Executar']]
 };
 function chromeApp(){
   const g=GRP[D.route]||D.route;
   const tabs=[['home','Início'],['VA01','VA01'],['VL01N','VL01N'],['VF01','VF01'],['J1BNFE','NF-e'],['SE16N','SE16N']];
   return `<header class="top"><div class="brand"><span class="logo">SD</span><div><b>SAPTutor SD</b><small>Venda padrão · Cenário Brasil</small></div></div>
-  <div class="top-r"><div class="seg" role="group" aria-label="Modo de tela"><button data-act="mode" data-mode="app" aria-pressed="true">App</button><button data-act="mode" data-mode="classic" aria-pressed="false">Clássico</button></div><button class="ic" data-act="mentor" aria-label="Mostrar a dica do mentor para esta tela">?</button></div></header>
+  <div class="top-r"><div class="seg" role="group" aria-label="Modo de tela"><button data-act="mode" data-mode="app" aria-pressed="true">SAP Fiori</button><button data-act="mode" data-mode="classic" aria-pressed="false">SAP GUI</button></div><button class="ic" data-act="mentor" aria-label="Mostrar a dica do mentor para esta tela">?</button></div></header>
   <nav class="tabs" aria-label="Transações">${tabs.map(([r,l])=>`<button data-act="go" data-to="${r}" class="${g===r?'on':''}" ${g===r?'aria-current="page"':''}>${l}</button>`).join('')}</nav>`;
 }
 function chromeClassic(r){
@@ -1056,7 +1271,7 @@ function chromeClassic(r){
   const a=x=>x===0?'<span class="sep"></span>':`<button class="sa" ${x[2]&&!x[4]?`data-act="${x[2]}"`:''} title="${x[1]}" ${x[3]?'':`aria-label="${x[1]}"`} ${x[4]?'disabled':''}>${svg(x[0])}${x[3]?`<span>${x[3]}</span>`:''}</button>`;
   const menus=(MENUS[g]||MENUS.home).map(m=>`<span><u>${m[0]}</u>${m.slice(1)}</span>`).join('');
   return `<div class="sg">
-  <div class="sg-menu"><span class="wi" aria-hidden="true">${svg('win')}</span>${menus}<div class="r"><button class="sg-mode" data-act="mode" data-mode="app" title="Voltar para a interface amigável">Modo App</button><span class="wc" aria-hidden="true"><i>_</i><i>□</i><i>×</i></span></div></div>
+  <div class="sg-menu"><span class="wi" aria-hidden="true">${svg('win')}</span>${menus}<div class="r"><button class="sg-mode" data-act="mode" data-mode="app" title="Mudar para a interface SAP Fiori">SAP Fiori</button><span class="wc" aria-hidden="true"><i>_</i><i>□</i><i>×</i></span></div></div>
   <div class="sg-tool">${b('enter','Enter','enter')}<div class="cmd"><input id="okcode" aria-label="Campo de comando" autocomplete="off" spellcheck="false"><span class="dd" aria-hidden="true">${svg('dd')}</span></div>${b('coll','Ocultar campo de comando','na')}${b('save','Gravar (Ctrl+S)','save',!canSave)}<span class="sep"></span>${b('back','Voltar (F3)','back')}${b('exit','Encerrar (Shift+F3)','home')}${b('cancel','Cancelar (F12)','back')}<span class="sep"></span>${b('print','Imprimir (Ctrl+P)','na',true)}${b('find','Procurar (Ctrl+F)','na',k!=='SE16N')}${b('findn','Continuar procura','na',true)}<span class="sep"></span>${b('pfirst','Primeira página','na',true)}${b('pprev','Página anterior','na',true)}${b('pnext','Página seguinte','na',true)}${b('plast','Última página','na',true)}<span class="sep"></span>${b('newwin','Criar nova sessão','na')}${b('short','Criar atalho no desktop','na')}<span class="sep"></span>${b('help','Ajuda: mentor (F1)','mentor')}${b('layout','Configurar layout local (Alt+F12)','na')}</div>
   <div class="sg-title"><h1>${r.title}</h1></div>
   <div class="sg-app">${(APPTB[k]||[]).map(a).join('')}</div></div>`;
@@ -1106,6 +1321,8 @@ const ACT={
   closementor:()=>{MENTOR=null;showMentor()},
   na:b=>msg('w',`Função "${b.getAttribute('title')}" não está disponível no simulador`),
   nfsel:b=>{D.nfSel=b.dataset.doc;render()},
+  tab:b=>{D.tabs[b.dataset.k]=b.dataset.tab;render()},
+  danfe:b=>{const d=b.dataset.doc;D.nfSel=d;D.nfDanfe=D.nfDanfe===d?null:d;render();if(D.nfDanfe)requestAnimationFrame(()=>document.getElementById('danfe')?.scrollIntoView({behavior:'smooth',block:'start'}))},
   copykey:()=>{const t=$('#nfkey').textContent.replace(/\s/g,'');const sel=()=>{const r=document.createRange();r.selectNodeContents($('#nfkey'));const s=getSelection();s.removeAllRanges();s.addRange(r)};
     try{navigator.clipboard.writeText(t).then(()=>msg('s','Chave de acesso copiada'),()=>{sel();msg('i','Chave selecionada. Use Ctrl+C para copiar')})}catch(_){sel();msg('i','Chave selecionada. Use Ctrl+C para copiar')}},
   reset:()=>{if(!D.confirmReset){D.confirmReset=true;render();setTimeout(()=>{if(D.confirmReset){D.confirmReset=false;if(D.route==='home')render()}},5000);return}
@@ -1123,7 +1340,7 @@ document.addEventListener('input',ev=>{
   const el=ev.target;if(!el.dataset||!el.dataset.bind)return;
   el.classList.remove('bad');
   setPath(el.dataset.bind,el.value);
-  if(el.dataset.bind==='se16.tab'){render();return}
+  if(el.dataset.bind==='se16.tab'){D.se16.run=false;if(el.tagName==='SELECT'){render();return}}
   if(el.dataset.bind.startsWith('vf01'))D.vf01.preview=false;
   if(el.dataset.suggest){const d=document.getElementById(el.id+'-d');if(d)d.textContent=descOf(el.dataset.suggest,el.value);if(document.activeElement===el)openSug(el,!el.value)}
   if(D.route==='VA01_2')updatePricing();
